@@ -1,4 +1,5 @@
 [![License](https://img.shields.io/github/license/x4kkk3r/Micron)]()
+[![Build Status](https://travis-ci.com/x4kkk3r/Micron.svg?branch=master)](https://travis-ci.com/x4kkk3r/Micron)
 
 # Micron
 Micron is a graphics engine which is using Vulkan. There will be no UI, only code, only hardcore.
@@ -13,7 +14,7 @@ cmake .. && cmake --build .
 
 ## Example
 ```cpp
-#include "Micron/Entrypoint.hpp"
+#include <Micron/Entrypoint.hpp>
 
 class Sandbox : public Micron::Application
 {
