@@ -3,29 +3,22 @@
 
 #include "core/Application.h"
 
-#include <fmt/format.h>
-
 int main(int argc, char **argv)
 {
     Micron::Logger::Initialize();
     _MICRON_CORE_LOG_INFO
     (
-        fmt::format
-        (
-            "Current Micron version: {}.{}.{}", 
-            MICRON_VERSION_MAJOR, MICRON_VERSION_MINOR, MICRON_VERSION_PATCH
-        )
+        "Current Micron version: {}.{}.{}", 
+        MICRON_VERSION_MAJOR, MICRON_VERSION_MINOR, MICRON_VERSION_PATCH
+    );
+    _MICRON_CORE_LOG_INFO
+    (
+        "Current platform: {}",
+        MICRON_PLATOFRM_STRING
     );
 
-    auto application = Micron::Application::Instance();
-    application->Initialize();
-    
-    Micron::Timer::Reset();
-    while (true)
-    {
-        Micron::Timer::Update();
-        application->OnUpdate(Micron::Timer::DeltaTime());
-    }
+    auto application = Micron::Application::GetInstance();
+    application->Run();
 
     return 0;
 }

@@ -10,8 +10,6 @@
 
 namespace Micron
 {
-    using namespace spdlog;
-
     class Logger
     {
     public:
@@ -22,11 +20,11 @@ namespace Micron
 
         static void Initialize() noexcept;
 
-        static inline Rc<logger> & GetInternalCoreLogger() noexcept { return internalCoreLogger; }
-        static inline Rc<logger> & GetApplicationLogger() noexcept { return applicationLogger; }
+        static inline Rc<spdlog::logger> & GetInternalCoreLogger() noexcept { return internalCoreLogger; }
+        static inline Rc<spdlog::logger> & GetApplicationLogger() noexcept { return applicationLogger; }
     private:
-        static Rc<logger> internalCoreLogger;
-        static Rc<logger> applicationLogger;
+        static Rc<spdlog::logger> internalCoreLogger;
+        static Rc<spdlog::logger> applicationLogger;
     };
 }
 

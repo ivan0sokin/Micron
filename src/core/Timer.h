@@ -18,7 +18,7 @@ namespace Micron
 
         static void Reset() noexcept;
         static void Update() noexcept;
-        static constexpr double DeltaTime() noexcept { return durationBetweenFrames.count(); }
+        static constexpr double GetDeltaTime() noexcept { return durationBetweenFrames.count(); }
     private:
         static TimePoint currentFrameTime, lastFrameTime;
         static duration<double, std::milli> durationBetweenFrames;

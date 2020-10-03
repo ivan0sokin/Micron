@@ -1,4 +1,19 @@
-language: c++
+dist: trusty
+sudo: required
+
+language:
+  - cpp
+compiler:
+  - gcc
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-6
+      - g++-6
+      - cmake
 
 addons:
   apt:
@@ -6,5 +21,9 @@ addons:
       - g++-6
 
 script:
+  - ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+  - ln -s /usr/bin/g++-6 /usr/local/bin/g++
+  - export CC=/usr/bin/gcc-6
+  - export CXX=/usr/bin/g++-6
   - mkdir build && cd build/
   - cmake .. && cmake --build .

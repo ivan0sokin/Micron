@@ -44,7 +44,6 @@ Micron::Rc<Micron::Application> Micron::Application::Instance() noexcept
 #### [IOMath](https://github.com/x4kkk3r/IOMath)
 #### [IOWindow](https://github.com/x4kkk3r/IOWindow)
 #### [SPDLog](https://github.com/gabime/spdlog)
-#### [FMT](https://github.com/fmtlib/fmt)
 
 ## License
 Micron is licensed under the [Apache-2.0 License](LICENSE)

@@ -3,8 +3,7 @@ project(Micron)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(SOURCE_FILES src/core/Exceptions.cpp
-                 src/core/Timer.cpp
+set(SOURCE_FILES src/core/Timer.cpp
                  src/core/Logger.cpp
                 )
 
