@@ -1,8 +1,10 @@
-#ifndef _MICRON_LOGGER_H
-#define _MICRON_LOGGER_H
+#ifndef _MICRON_CORE_LOGGER_H
+#define _MICRON_CORE_LOGGER_H
 
-#include "Core.h"
+#include "Base.h"
+#include "types/BasicTypes.h"
 
+#define SPDLOG_FMT_EXTERNAL
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -13,39 +15,45 @@ namespace Micron
     class Logger
     {
     public:
-        Logger() = delete;
-        Logger(Logger const &other) = delete;
-        Logger(Logger &&other) = delete;
-        ~Logger() = delete;
+        inline Logger(String name) noexcept
+        {
+            using namespace spdlog;
 
-        static void Initialize() noexcept;
+            auto consoleSink = MakeRc<sinks::stdout_color_sink_mt>();
+            auto fileSink = MakeRc<sinks::basic_file_sink_mt>("Micron.log", true);
 
-        static inline Rc<spdlog::logger> & GetInternalCoreLogger() noexcept { return internalCoreLogger; }
-        static inline Rc<spdlog::logger> & GetApplicationLogger() noexcept { return applicationLogger; }
+            consoleSink->set_pattern("%^[%d.%m.%Y %T] [%n: %l] %v%$");
+            fileSink->set_pattern("[%d.%m.%Y %T] [%n: %l] %v");
+
+            internalLogger = MakeRc<logger>(name, sinks_init_list{ consoleSink, fileSink });
+            register_logger(internalLogger);
+
+            internalLogger->set_level(level::trace);
+            internalLogger->flush_on(level::trace);
+        }
+
+        inline Logger() = delete;
+        inline Logger(Logger const &other) = delete;
+        inline Logger(Logger &&other) = delete;
+        inline  ~Logger() noexcept = default;
+
+        template <typename ...Args> constexpr Void Trace(Args &&...args) noexcept { internalLogger->trace(std::forward<Args>(args)...); }
+        template <typename ...Args> constexpr Void Debug(Args &&...args) noexcept { internalLogger->debug(std::forward<Args>(args)...); }
+        template <typename ...Args> constexpr Void Info(Args &&...args) noexcept { internalLogger->info(std::forward<Args>(args)...); }
+        template <typename ...Args> constexpr Void Warn(Args &&...args) noexcept { internalLogger->warn(std::forward<Args>(args)...); }
+        template <typename ...Args> constexpr Void Error(Args &&...args) noexcept { internalLogger->error(std::forward<Args>(args)...); }
+        template <typename ...Args> constexpr Void Critical(Args &&...args) noexcept { internalLogger->critical(std::forward<Args>(args)...); }
     private:
-        static Rc<spdlog::logger> internalCoreLogger;
-        static Rc<spdlog::logger> applicationLogger;
+        Rc<spdlog::logger> internalLogger;
     };
+
+    inline static Rc<Logger> CoreLogger;
 }
 
-#define _MICRON_CORE_LOG_TRACE(...) ::Micron::Logger::GetInternalCoreLogger()->trace(__VA_ARGS__)
-#define _MICRON_CORE_LOG_INFO(...) ::Micron::Logger::GetInternalCoreLogger()->info(__VA_ARGS__)
-#define _MICRON_CORE_LOG_WARN(...) ::Micron::Logger::GetInternalCoreLogger()->warn(__VA_ARGS__)
-#define _MICRON_CORE_LOG_ERROR(...) ::Micron::Logger::GetInternalCoreLogger()->error(__VA_ARGS__)
-#define _MICRON_CORE_LOG_CRITICAL(...) ::Micron::Logger::GetInternalCoreLogger()->critical(__VA_ARGS__)
-
-#define MICRON_LOG_TRACE(...) ::Micron::Logger::GetApplicationLogger()->trace(__VA_ARGS__)
-#define MICRON_LOG_INFO(...) ::Micron::Logger::GetApplicationLogger()->info(__VA_ARGS__)
-#define MICRON_LOG_WARN(...) ::Micron::Logger::GetApplicationLogger()->warn(__VA_ARGS__)
-#define MICRON_LOG_ERROR(...) ::Micron::Logger::GetApplicationLogger()->error(__VA_ARGS__)
-#define MICRON_LOG_CRITICAL(...) ::Micron::Logger::GetApplicationLogger()->critical(__VA_ARGS__)
-
-#ifdef MICRON_DEBUG
-    #define _MICRON_CORE_LOG_DEBUG(...) ::Micron::Logger::GetInternalCoreLogger()->debug(__VA_ARGS__)
-    #define MICRON_LOG_DEBUG(...) ::Micron::Logger::GetApplicationLogger()->debug(__VA_ARGS__)
+#if defined(MICRON_DEBUG)
+    #define LOGGER_DEBUG(logger, ...) logger->Debug(__VA_ARGS__)
 #else
-    #define _MICRON_CORE_LOG_DEBUG(...)
-    #define MICRON_LOG_DEBUG(...)
+    #define LOGGER_DEBUG(logger, ...)
 #endif
 
 #endif

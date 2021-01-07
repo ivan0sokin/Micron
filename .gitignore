@@ -1,3 +1,10 @@
 /.vscode/
+/.vs/
 /sandbox/
 /build/
+MicronLib.sln
+MicronLib.vcxproj
+MicronLib.vcxproj.filters
+MicronLib.vcxproj.user
+/x64/
+/lib/

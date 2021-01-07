@@ -1,21 +1,30 @@
 #ifndef _MICRON_PLATFORM_H
 #define _MICRON_PLATFORM_H
 
-#define MICRON_PLATFORM_LINUX 0
-#define MICRON_PLATFORM_WINDOWS 1
-#define MICRON_PLATFORM_MACOS 2
+#include "types/BasicTypes.h"
+#include "types/ContainerTypes.h"
+#include "Enum.h"
+
+namespace Micron
+{
+    enum class Platform : UInt16
+    {
+        Windows = 0,
+        Linux,
+        MacOS
+    };
+
+    String ToString(Platform const &platform) noexcept;
+}
 
 #if defined(__linux__) && !defined(__ANDROID__)
-    #define MICRON_PLATFORM MICRON_PLATFORM_LINUX
-    #define MICRON_PLATOFRM_STRING "Linux"
+    #define MICRON_CURRENT_PLATFORM ::Micron::Platform::Linux
 #elif defined(_WIN32) || defined(_WIN64)
-    #define MICRON_PLATFORM MICRON_PLATFORM_WINDOWS
-    #define MICRON_PLATFORM_STRING "Windows"
+    #define MICRON_CURRENT_PLATFORM ::Micron::Platform::Windows
 #elif defined(__APPLE__)
-    #define MICRON_PLATFORM MICRON_PLATFORM_MACOS
-    #define MICRON_PLATFORM_STRING "Mac OS"
+    #define MICRON_CURRENT_PLATFORM ::Micron::Platform::MacOS
 #else
-    #error "Current platform is not supported"
+    static_assert(false, "Current platform is not supported")
 #endif
 
 #endif
