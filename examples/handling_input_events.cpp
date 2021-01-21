@@ -1,31 +1,36 @@
 #include <Micron/Micron.h>
 
-class TestApplication : public Micron::Application
+/*
+	If you define _MICRON_DEBUG,
+	core logger will always send you all incoming events.
+	So you do not need "printing" events if you are debugging
+*/
+
+using namespace Micron;
+
+class ExampleApplication : public Application
 {
 public:
-	TestApplication() noexcept
+	ExampleApplication() noexcept
 	{
-		ApplicationLogger = Micron::MakeRc<Micron::Logger>("TestApplication");
+		this->name = "ExampleApplication";
+		this->initialWindowTitle = L"Example title";
+		this->initialWindowResolution = { 1280, 720 };
 
-		this->InitializeApplicationDescription(Micron::ApplicationDescription
-		{
-			"Test application name",
-			"Some window title",
-			Micron::Resolution { 600, 700 }
-		});
+		applicationLogger = MakeRc<Logger>("ExampleApplication");
 
-        ApplicationLogger->Debug("Constructor");
+        applicationLogger->Debug("Constructor");
 	}
 
 
-	~TestApplication() noexcept override
+	~ExampleApplication() noexcept override
 	{
-        ApplicationLogger->Debug("Destructor");
+        applicationLogger->Debug("Destructor");
 	}
 private:
 	virtual void OnInitialize() noexcept override
 	{
-		ApplicationLogger->Debug("OnInitialize()");
+		applicationLogger->Debug("OnInitialize()");
 	}
 
 	virtual void OnUserUpdate() noexcept override
@@ -51,11 +56,11 @@ private:
 		}
 	}
 
-	void HandleKeyboardInput(Micron::KeyboardInputEventRc keyboardInputEvent) noexcept
+	void HandleKeyboardInput(KeyboardInputEventRc keyboardInputEvent) noexcept
 	{
 		using namespace Micron;
 
-		ApplicationLogger->Trace("\"{0}\", keycode: {1}, scancode: {2}, action: {3}", ToString(keyboardInputEvent->GetKey().keycode), keyboardInputEvent->GetKey().keycode, keyboardInputEvent->GetKey().scancode, ToString(keyboardInputEvent->GetType()));
+		applicationLogger->Trace("\"{0}\", keycode: {1}, scancode: {2}, action: {3}", ToString(keyboardInputEvent->GetKey().keycode), keyboardInputEvent->GetKey().keycode, keyboardInputEvent->GetKey().scancode, ToString(keyboardInputEvent->GetType()));
 		
 		if (keyboardInputEvent->GetType() != KeyActionEventType::Press)
 			return;
@@ -64,50 +69,50 @@ private:
 		{
 		case Keycode::F1:
 			Input::EnableCursor();
-			ApplicationLogger->Info("Cursor enabled! IsCursorEnabled state is {}", ToString(Input::IsCursorEnabled()));
+			applicationLogger->Info("Cursor enabled! IsCursorEnabled state is {}", ToString(Input::IsCursorEnabled()));
 			break;
 		case Keycode::F2:
 			Input::DisableCursor();
-			ApplicationLogger->Info("Cursor disabled! IsCursorEnabled state is {}", ToString(Input::IsCursorEnabled()));
+			applicationLogger->Info("Cursor disabled! IsCursorEnabled state is {}", ToString(Input::IsCursorEnabled()));
 			break;
 		case Keycode::F3:
 			Input::EnableRawMouseInput();
-			ApplicationLogger->Info("Raw mouse input enabled! IsRawMouseInputEnabled state is {}", ToString(Input::IsRawMouseInputEnabled()));
+			applicationLogger->Info("Raw mouse input enabled! IsRawMouseInputEnabled state is {}", ToString(Input::IsRawMouseInputEnabled()));
 			break;
 		case Keycode::F4:
 			Input::DisableRawMouseInput();
-			ApplicationLogger->Info("Raw mouse input disabled! IsRawMouseInputEnabled state is {}", ToString(Input::IsRawMouseInputEnabled()));
+			applicationLogger->Info("Raw mouse input disabled! IsRawMouseInputEnabled state is {}", ToString(Input::IsRawMouseInputEnabled()));
 			break;
 		case Keycode::F5:
 			Input::EnableAutorepeat();
-			ApplicationLogger->Info("Autorepeat enabled! IsAutorepeatEnabled is {}", ToString(Input::IsAutorepeatEnabled()));
+			applicationLogger->Info("Autorepeat enabled! IsAutorepeatEnabled is {}", ToString(Input::IsAutorepeatEnabled()));
 			break;
 		case Keycode::F6:
 			Input::DisableAutorepeat();
-			ApplicationLogger->Info("Autorepeat disabled! IsAutorepeatEnabled is {}", ToString(Input::IsAutorepeatEnabled()));
+			applicationLogger->Info("Autorepeat disabled! IsAutorepeatEnabled is {}", ToString(Input::IsAutorepeatEnabled()));
 			break;
 		case Keycode::F7:
-			ApplicationLogger->Info("Input::eventBuffer size is: {0}, is empty state: {1}", Input::EventBufferSize(), ToString(Input::IsEventBufferEmpty()));
+			applicationLogger->Info("Input::eventBuffer size is: {0}, is empty state: {1}", Input::EventBufferSize(), ToString(Input::IsEventBufferEmpty()));
 			break;
 		case Keycode::F8:
 			Input::FlushEventBuffer();
-			ApplicationLogger->Info("Event buffer flushed!");
+			applicationLogger->Info("Event buffer flushed!");
 			break;
 		case Keycode::F9:
-			ApplicationLogger->Info("Last mouse position: ({0}, {1})", Input::GetLastMouseX(), Input::GetLastMouseY());
+			applicationLogger->Info("Last mouse position: ({0}, {1})", Input::GetLastMouseX(), Input::GetLastMouseY());
 			break;
 		case Keycode::F10:
-			ApplicationLogger->Info("Last mouse offset: {}", Input::GetLastMouseWheelOffset());
+			applicationLogger->Info("Last mouse offset: {}", Input::GetLastMouseWheelOffset());
 			break;
 		case Keycode::Escape:
-			this->ShutDown();
+			this->Shutdown();
 			break;
 		default:
 			break;
 		}
 	}
 
-	void HandleMouseInput(Micron::MouseInputEventRc mouseInputEvent) noexcept
+	void HandleMouseInput(MouseInputEventRc mouseInputEvent) noexcept
 	{
 		using namespace Micron;
 
@@ -116,35 +121,35 @@ private:
 		case MouseInputEventType::ButtonAction:
 		{
 			ButtonActionEventRc btnActionEvent = DynamicPointerCast<ButtonActionEvent>(mouseInputEvent);
-			ApplicationLogger->Info("{0} button, action: {1}, at: ({2}, {3})", ToString(btnActionEvent->GetButton()), ToString(btnActionEvent->GetActionType()), btnActionEvent->GetPositionX(), btnActionEvent->GetPositionY());
+			applicationLogger->Info("{0} button, action: {1}, at: ({2}, {3})", ToString(btnActionEvent->GetButton()), ToString(btnActionEvent->GetActionType()), btnActionEvent->GetPositionX(), btnActionEvent->GetPositionY());
 			break;
 		}
 		case MouseInputEventType::WheelScroll:
 		{
 			WheelScrollEventRc wheelScrollEvent = DynamicPointerCast<WheelScrollEvent>(mouseInputEvent);
-			ApplicationLogger->Info("Offset: {0}, at: ({1}, {2})", wheelScrollEvent->GetOffset(), wheelScrollEvent->GetPositionX(), wheelScrollEvent->GetPositionY());
+			applicationLogger->Info("Offset: {0}, at: ({1}, {2})", wheelScrollEvent->GetOffset(), wheelScrollEvent->GetPositionX(), wheelScrollEvent->GetPositionY());
 			break;
 		}
 		case MouseInputEventType::Move:
 		{
 			MouseMoveEventRc mouseMoveEvent = DynamicPointerCast<MouseMoveEvent>(mouseInputEvent);
-			ApplicationLogger->Trace("Mouse has moved to: ({0}, {1})", mouseMoveEvent->GetPositionX(), mouseMoveEvent->GetPositionY());
+			applicationLogger->Trace("Mouse has moved to: ({0}, {1})", mouseMoveEvent->GetPositionX(), mouseMoveEvent->GetPositionY());
 			break;
 		}
 		case MouseInputEventType::RawMove:
 		{
 			MouseRawMoveEventRc mouseRawMoveEvent = DynamicPointerCast<MouseRawMoveEvent>(mouseInputEvent);
-			ApplicationLogger->Trace("Mouse has moved by: ({0}, {1})", mouseRawMoveEvent->GetRawDeltaX(), mouseRawMoveEvent->GetRawDeltaY());
+			applicationLogger->Trace("Mouse has moved by: ({0}, {1})", mouseRawMoveEvent->GetRawDeltaX(), mouseRawMoveEvent->GetRawDeltaY());
 			break;
 		}
 		case MouseInputEventType::Enter:
 		{
-			ApplicationLogger->Info("Mouse entered! Last mouse position: ({0}, {1})", Input::GetLastMouseX(), Input::GetLastMouseY());
+			applicationLogger->Info("Mouse entered! Last mouse position: ({0}, {1})", Input::GetLastMouseX(), Input::GetLastMouseY());
 			break;
 		}
 		case MouseInputEventType::Leave:
 		{
-			ApplicationLogger->Info("Mouse leaved! Last mouse position: ({0}, {1})", Input::GetLastMouseX(), Input::GetLastMouseY());
+			applicationLogger->Info("Mouse leaved! Last mouse position: ({0}, {1})", Input::GetLastMouseX(), Input::GetLastMouseY());
 			break;
 		}
 		default:
@@ -154,15 +159,15 @@ private:
 
 	virtual void OnDestroy() noexcept override
 	{
-		ApplicationLogger->Debug("OnDestroy()");
+		applicationLogger->Debug("OnDestroy()");
 	}
 private:
-	Micron::Rc<Micron::Logger> ApplicationLogger;
+	Rc<Logger> applicationLogger;
 };
 
-static Micron::Rc<Micron::Application> applicationInstance = Micron::MakeRc<TestApplication>();
+static Rc<Application> applicationInstance = MakeRc<ExampleApplication>();
 
-Micron::Rc<Micron::Application> Micron::Application::GetInstance() noexcept
+Rc<Application> Application::GetInstance() noexcept
 {
 	return applicationInstance;
 }
