@@ -4,13 +4,17 @@
 #include "types/BasicTypes.h"
 #include "types/ContainerTypes.h"
 
+#define MICRON_PLATFORM_WINDOWS 0
+#define MICRON_PLATFORM_LINUX 1
+#define MICRON_PLATFORM_MACOS 2
+
 namespace Micron
 {
     enum class Platform : UInt16
     {
-        Windows = 0,
-        Linux,
-        MacOS
+        Windows = MICRON_PLATFORM_WINDOWS,
+        Linux = MICRON_PLATFORM_LINUX,
+        MacOS = MICRON_PLATFORM_MACOS
     };
 
     MultibyteString ToString(Platform const &platform) noexcept;

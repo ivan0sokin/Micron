@@ -3,7 +3,8 @@
 /*
 	If you define _MICRON_DEBUG,
 	core logger will always send you all incoming events.
-	So you do not need "printing" events if you are debugging
+	So you do not need "printing" events if you are debugging.
+	Also you have to call a function SetPreferences to initialize working window.
 */
 
 using namespace Micron;
@@ -14,26 +15,28 @@ public:
 	ExampleApplication() noexcept
 	{
 		this->name = "ExampleApplication";
-		this->initialWindowTitle = L"Example title";
-		this->initialWindowResolution = { 1280, 720 };
 
 		applicationLogger = MakeRc<Logger>("ExampleApplication");
-
-        applicationLogger->Debug("Constructor");
+		applicationLogger->Debug("Beginning");
 	}
-
 
 	~ExampleApplication() noexcept override
 	{
-        applicationLogger->Debug("Destructor");
+		applicationLogger->Debug("Ending");
 	}
 private:
 	virtual void OnInitialize() noexcept override
 	{
-		applicationLogger->Debug("OnInitialize()");
-	}
+		applicationLogger->Debug("Initializing");
 
-	virtual void OnUserUpdate() noexcept override
+		this->GetWindow()->SetPreferences(WindowPreferences()
+			.Title("Example title")
+			.Resolution({ 1280, 720 })
+			.PositionType(PositionType::Centered)
+		);
+	}
+	
+	virtual void OnUserUpdate(Real32 deltaTime) noexcept override
 	{
 		using namespace Micron;
 
@@ -41,7 +44,7 @@ private:
 		while (!Input::IsEventBufferEmpty())
 		{
 			event = Input::PeekEvent().value();
-			
+
 			switch (event->GetCategory())
 			{
 			case EventCategory::KeyboardInput:
@@ -61,7 +64,7 @@ private:
 		using namespace Micron;
 
 		applicationLogger->Trace("\"{0}\", keycode: {1}, scancode: {2}, action: {3}", ToString(keyboardInputEvent->GetKey().keycode), keyboardInputEvent->GetKey().keycode, keyboardInputEvent->GetKey().scancode, ToString(keyboardInputEvent->GetType()));
-		
+
 		if (keyboardInputEvent->GetType() != KeyActionEventType::Press)
 			return;
 
@@ -159,7 +162,7 @@ private:
 
 	virtual void OnDestroy() noexcept override
 	{
-		applicationLogger->Debug("OnDestroy()");
+		applicationLogger->Debug("Destroying objects");
 	}
 private:
 	Rc<Logger> applicationLogger;

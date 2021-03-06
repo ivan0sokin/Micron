@@ -30,11 +30,6 @@ namespace Micron
 
 	using MouseInputEventRc = Rc<MouseInputEvent>;
 
-	struct Position
-	{
-		Int32 x, y;
-	};
-
 	enum class ButtonActionEventType : UInt16
 	{
 		None = 0,

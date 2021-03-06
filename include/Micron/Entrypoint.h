@@ -5,23 +5,23 @@
 
 using namespace Micron;
 
-Vector<MultibyteStringView> ParseCommandLineArguments(Int32 argc, Char **argv) noexcept;
+auto ParseCommandLineArguments(Int32 argc, Char **argv) noexcept -> Vector<MultibyteStringView>;
 
-int main(Int32 argc, Char **argv)
+auto main(Int32 argc, Char **argv) -> signed
 {
     Engine micronEngine = Engine(Application::GetInstance());
 
     Vector<MultibyteStringView> commandLineArguments = ParseCommandLineArguments(argc, argv);
     micronEngine.Start(commandLineArguments);
-
+    
     return 0;
 }
 
-Vector<MultibyteStringView> ParseCommandLineArguments(Int32 argc, Char **argv) noexcept
+auto ParseCommandLineArguments(Int32 argc, Char **argv) noexcept -> Vector<MultibyteStringView>
 {
     Vector<MultibyteStringView> result;
 
-    USize numArguments = static_cast<USize>(argc - 1);
+    USize numArguments = static_cast<USize>(argc) - 1;
     if (numArguments == 0)
         result.emplace_back("None");
 

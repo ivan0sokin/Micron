@@ -6,6 +6,7 @@
 #include "types/BasicTypes.h"
 #include "types/ContainerTypes.h"
 #include "types/MathTypes.h"
+#include "types/StructureTypes.h"
 #include "types/TypeName.h"
 #include "StringConverter.h"
 #include "Logger.h"
