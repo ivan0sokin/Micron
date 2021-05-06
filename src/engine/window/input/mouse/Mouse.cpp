@@ -12,7 +12,7 @@ namespace Micron
         buttonsAsStrings[EnumToUnsignedSizeType(Button::Middle)] = "Middle";
         buttonsAsStrings[EnumToUnsignedSizeType(Button::Backward)] = "Backward";
         buttonsAsStrings[EnumToUnsignedSizeType(Button::Forward)] = "Forward";
-
+        
         for (USize i = 5; i < MAX_MOUSE_BUTTONS; ++i)
         {
             buttonsAsStrings[i] = ToString(i) + MultibyteString("-th");

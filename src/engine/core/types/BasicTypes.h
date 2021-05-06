@@ -39,6 +39,9 @@ namespace Micron
 
 	using Char = char;
 	using WideChar = wchar_t;
+
+	using NullTerminatedString = char *;
+	using NullTerminatedConstantString = char const *;
 }
 
 #endif 

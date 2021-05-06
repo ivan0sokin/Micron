@@ -16,7 +16,7 @@ namespace Micron
 
 	Void Application::Launch() noexcept
 	{
-		CoreLogger::Info("Application \"{}\" started up", name);
+		CoreLogger::Info("Application \"{0}\" ver. {1}.{2}.{3} started up", name, version.major, version.minor, version.patch);
 
 		this->LogEngineDescription();
 		this->LogPlatformDescription();
@@ -24,7 +24,9 @@ namespace Micron
 		this->InitializeWindow();
 
 		this->OnInitialize();
+
 		this->TryOpenTheWindowOrExtraShutdown();
+		Renderer::Initialize();
 
 		timer.Reset();
 		while (isRunning)
@@ -35,6 +37,8 @@ namespace Micron
 		}
 
 		this->OnDestroy();
+
+		Renderer::Destroy();
 		window->Close();
 	}
 
@@ -68,7 +72,7 @@ namespace Micron
 		if (!window->Open())
 		{
 			CoreLogger::Critical("Failed to open the window");
-			MICRON_EXTRA_SHUTDOWN();
+			_MICRON_SHUTDOWN();
 		}
 	}
 
@@ -77,7 +81,7 @@ namespace Micron
 		if (!window)
 		{
 			CoreLogger::Critical("Can't pass window pointer. Window is unitialized");
-			MICRON_EXTRA_SHUTDOWN();
+			_MICRON_SHUTDOWN();
 		}
 
 		return window;

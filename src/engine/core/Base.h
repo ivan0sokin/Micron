@@ -7,7 +7,7 @@
 
 #include "Platform.h"
 
-#if defined(_MICRON_DEBUG)
+#if defined _MICRON_DEBUG
     #if MICRON_PLATFORM == MICRON_PLATFORM_WINDOWS
         #define _MICRON_DEBUG_BREAK() __debugbreak()
     #elif MICRON_PLATFORM == MICRON_PLATFORM_LINUX
@@ -20,13 +20,13 @@
     #define _MICRON_DEBUG_BREAK()
 #endif
 
-#if defined(_MICRON_DEBUG)
+#if defined _MICRON_DEBUG
     #define _MICRON_ASSERT(condition) if (!(condition)) _MICRON_DEBUG_BREAK()
 #else
     #define _MICRON_ASSERT(condition)
 #endif
 
-#define MICRON_EXTRA_SHUTDOWN() exit(-1)
+#define _MICRON_SHUTDOWN() exit(-1)
 
 namespace Micron
 {

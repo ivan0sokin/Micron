@@ -13,9 +13,10 @@ namespace Micron
 		{}
 
 		Void Start(Vector<MultibyteStringView> const &preLaunchCommandLineArguments) noexcept;
-
-		constexpr static Version LatestStableVersion() noexcept { return Version { 0, 0, 4 }; }
-		constexpr static Version DevelopingVersion() noexcept { return Version{ 0, 0, 5 }; }
+		
+		constexpr static MultibyteStringView Name() noexcept { return "Micron"; }
+		constexpr static Version LatestStableVersion() noexcept { return Version(0, 0, 4); }
+		constexpr static Version DevelopingVersion() noexcept { return Version(0, 0, 5); }
 		constexpr static Array<Platform, 1> SupportedPlatforms() noexcept { return { Platform::Windows }; }
 		constexpr static Platform CurrentPlatform() noexcept { return MICRON_CURRENT_PLATFORM; }
 	private:

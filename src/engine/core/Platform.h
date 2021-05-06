@@ -22,10 +22,13 @@ namespace Micron
 
 #if defined(__linux__) && !defined(__ANDROID__)
     #define MICRON_CURRENT_PLATFORM ::Micron::Platform::Linux
+    #define MICRON_CURRENT_PLATFORM_LINUX
 #elif defined(_WIN32) || defined(_WIN64)
     #define MICRON_CURRENT_PLATFORM ::Micron::Platform::Windows
+    #define MICRON_CURRENT_PLATFORM_WINDOWS
 #elif defined(__APPLE__)
     #define MICRON_CURRENT_PLATFORM ::Micron::Platform::MacOS
+    #define MICRON_CURRENT_PLATFORM_MACOS
 #else
     static_assert(false, "Unknown platform")
 #endif

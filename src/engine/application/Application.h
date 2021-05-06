@@ -3,6 +3,7 @@
 
 #include "Console.h"
 #include "../window/Window.h"
+#include "../renderer/Renderer.h"
 
 namespace Micron
 {
@@ -18,6 +19,9 @@ namespace Micron
         Void Launch() noexcept;
         constexpr Void Shutdown() noexcept { isRunning = false; }
 
+        constexpr MultibyteStringView GetName() const noexcept { return name; }
+        constexpr Version GetVersion() const noexcept { return version; }
+
         static Rc<Application> GetInstance() noexcept;
     private:
         Void InitializeConsole() noexcept;
@@ -32,7 +36,8 @@ namespace Micron
     protected:
         Rc<Window> GetWindow() noexcept;
     protected:
-        MultibyteString name = "Something Ends, Something Begins";
+        MultibyteStringView name = "Something Ends, Something Begins";
+        Version version = Version(0, 0, 0);
     private:
         Bool isRunning = true;
         Console console;
