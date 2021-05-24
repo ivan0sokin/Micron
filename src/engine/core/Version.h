@@ -1,5 +1,5 @@
-#ifndef _MICRON_CORE_VERSION_H
-#define _MICRON_CORE_VERSION_H
+#ifndef _MICRON_ENGINE_CORE_VERSION_H
+#define _MICRON_ENGINE_CORE_VERSION_H
 
 #include "types/BasicTypes.h"
 #include "types/ContainerTypes.h"
@@ -25,6 +25,8 @@ namespace Micron
 
         constexpr UInt8 & operator[](std::size_t index) noexcept { return (&this->major)[index]; }
         constexpr UInt8 const & operator[](std::size_t index) const noexcept { return (&this->major)[index]; }
+
+        inline MultibyteString ToString() noexcept { return fmt::format("{0}.{1}.{2}", major, minor, patch); }
     };
 }
 

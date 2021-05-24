@@ -2,7 +2,10 @@
 #define _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_RENDERER_H
 
 #include "../APIRenderer.h"
+
 #include "VulkanInstance.h"
+#include "VulkanPhysicalDevice.h"
+#include "VulkanLogicalDevice.h"
 
 namespace Micron
 {
@@ -17,7 +20,20 @@ namespace Micron
 
 		constexpr API GetAPI() const noexcept override { return API::Vulkan; }
 	private:
-		Vulkan::Instance instance;
+		Void InitializeInstance() noexcept;
+		Void DestroyInstance() noexcept;
+
+		Void InitializePhysicalDevices() noexcept;
+
+		Void InitializeLogicalDevice() noexcept;
+		Void CreateLogicalDevice() noexcept;
+		Void InitializeLogicalDeviceQueues() noexcept;
+		Void DestroyLogicalDevice() noexcept;
+	private:
+		Rc<Vulkan::Instance> instance;
+		Vector<Rc<Vulkan::PhysicalDevice>> physicalDevices;
+		USize pickedPhysicalDeviceIndex = 0;
+		Box<Vulkan::LogicalDevice> logicalDevice;
 	};
 }
 

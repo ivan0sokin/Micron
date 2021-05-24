@@ -6,7 +6,11 @@ namespace Micron
 	Void Application::ProcessPreLaunchCommandLineArguments(Vector<MultibyteStringView> const &arguments) noexcept
 	{
 		this->InitializeConsole();
-		std::for_each(arguments.begin(), arguments.end(), [&](auto argument){ console.ExecuteCommand(argument); });
+
+		std::ranges::for_each(std::as_const(arguments), [&](auto argument)
+		{
+			console.ExecuteCommand(argument);
+		});
 	}
 
 	Void Application::InitializeConsole() noexcept

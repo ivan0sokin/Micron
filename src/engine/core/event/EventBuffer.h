@@ -1,5 +1,5 @@
-#ifndef _MICRON_CORE_EVENT_EVENT_BUFFER_H
-#define _MICRON_CORE_EVENT_EVENT_BUFFER_H
+#ifndef _MICRON_ENGINE_CORE_EVENT_EVENT_BUFFER_H
+#define _MICRON_ENGINE_CORE_EVENT_EVENT_BUFFER_H
 
 #include "../types/BasicTypes.h"
 #include "../types/ContainerTypes.h"

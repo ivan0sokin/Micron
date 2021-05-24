@@ -20,11 +20,11 @@ namespace Micron
 			{
 				UInt32 extensionCount = 0;
 				{
-					Utility::Result eExtensionCountRetrieve = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+					Utility::Result extensionCountRetrieve = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 					
-					if (eExtensionCountRetrieve.Failed())
+					if (extensionCountRetrieve.Failed())
 					{
-						CoreLogger::Error("Failed to retrieve Vulkan instance extension count, message: {}", eExtensionCountRetrieve.ToString());
+						CoreLogger::Error("Failed to retrieve Vulkan instance extension count, message: {}", extensionCountRetrieve.ToString());
 						return Vector<VkExtensionProperties>();
 					}
 				}
@@ -41,41 +41,6 @@ namespace Micron
 				}
 
 				return availableInstanceExtensionProperties;
-			}
-
-			Vector<MultibyteString> GetAvailableInstanceExtensionNames() noexcept
-			{
-				auto availableInstanceExtensionProperties = GetAvailableInstanceExtensionProperties();
-
-				USize extensionCount = availableInstanceExtensionProperties.size();
-				Vector<MultibyteString> availableInstanceExtensionNames = Vector<MultibyteString>(extensionCount);
-
-				for (USize i = 0; i < extensionCount; ++i)
-				{
-					availableInstanceExtensionNames[i] = availableInstanceExtensionProperties[i].extensionName;
-				}
-
-				return availableInstanceExtensionNames;
-			}
-
-			Bool CheckRequiredExtensionsAreUnavailable() noexcept
-			{
-				auto requiredExtensions = GetRequiredInstanceExtensionNames();
-				auto availableExtensions = GetAvailableInstanceExtensionNames();
-
-				Bool allExtensionsFound = true;
-				for (auto const &extension : requiredExtensions)
-				{
-					if (std::find(availableExtensions.begin(), availableExtensions.end(), extension) != availableExtensions.end())
-						CoreLogger::Info("Extension \"{}\" was found", extension);
-					else
-					{
-						CoreLogger::Error("Extension \"{}\" was not found", extension);
-						allExtensionsFound = false;
-					}
-				}
-
-				return !allExtensionsFound;
 			}
 
 			Vector<NullTerminatedConstantString> GetPlatformDependentInstanceExtensionNames() noexcept
@@ -96,12 +61,7 @@ namespace Micron
 				Vector<NullTerminatedConstantString> requiredInstanceExtensionNames = { VK_KHR_SURFACE_EXTENSION_NAME };
 
 				auto platformDependentExtensionNames = GetPlatformDependentInstanceExtensionNames();
-				requiredInstanceExtensionNames.reserve(platformDependentExtensionNames.size());
-
-				for (auto &&extension : platformDependentExtensionNames)
-				{
-					requiredInstanceExtensionNames.emplace_back(extension);
-				}
+				requiredInstanceExtensionNames.insert(requiredInstanceExtensionNames.begin(), platformDependentExtensionNames.begin(), platformDependentExtensionNames.end());
 
 				return requiredInstanceExtensionNames;
 			}

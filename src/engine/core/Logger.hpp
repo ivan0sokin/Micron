@@ -1,5 +1,5 @@
-#ifndef _MICRON_CORE_LOGGER_H
-#define _MICRON_CORE_LOGGER_H
+#ifndef _MICRON_ENGINE_CORE_LOGGER_HPP
+#define _MICRON_ENGINE_CORE_LOGGER_HPP
 
 #include "Base.h"
 #include "types/BasicTypes.h"
@@ -15,17 +15,17 @@ namespace Micron
     class Logger
     {
     public:
-        inline Logger(MultibyteStringView name) noexcept
+        inline Logger(MultibyteString const &name, MultibyteString const &outputFileName) noexcept
         {
             using namespace spdlog;
             
             auto consoleSink = MakeRc<sinks::stdout_color_sink_mt>();
-            auto fileSink = MakeRc<sinks::basic_file_sink_mt>("Micron.log", true);
-
+            auto fileSink = MakeRc<sinks::basic_file_sink_mt>(outputFileName, true);
+            
             consoleSink->set_pattern("%^[%d.%m.%Y %T] [%n: %l] %v%$");
             fileSink->set_pattern("[%d.%m.%Y %T] [%n: %l] %v");
 
-            internalLogger = MakeRc<logger>(name.data(), sinks_init_list{ consoleSink, fileSink });
+            internalLogger = MakeRc<logger>(name, sinks_init_list{ consoleSink, fileSink });
             register_logger(internalLogger);
 
             internalLogger->set_level(level::trace);
@@ -55,9 +55,10 @@ namespace Micron
         template <typename ...Args> constexpr static Void Error(Args &&...args) noexcept { logger.Error(std::forward<Args>(args)...); }
         template <typename ...Args> constexpr static Void Critical(Args &&...args) noexcept { logger.Critical(std::forward<Args>(args)...); }
 
-        constexpr static MultibyteStringView Name() noexcept { return "MICRON"; }
+        constexpr static MultibyteString Name() noexcept { return "MICRON"; }
+        constexpr static MultibyteString OutputFileName() noexcept { return "Micron.log" ;}
     private:
-        inline static Logger logger = Logger(CoreLogger::Name());
+        inline static Logger logger = Logger(CoreLogger::Name(), CoreLogger::OutputFileName());
     };
 }
 

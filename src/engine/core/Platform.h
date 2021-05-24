@@ -1,5 +1,5 @@
-#ifndef _MICRON_PLATFORM_H
-#define _MICRON_PLATFORM_H
+#ifndef _MICRON_ENGINE_CORE_PLATFORM_H
+#define _MICRON_ENGINE_CORE_PLATFORM_H
 
 #include "types/BasicTypes.h"
 #include "types/ContainerTypes.h"

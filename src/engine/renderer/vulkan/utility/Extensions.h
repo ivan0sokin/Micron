@@ -12,11 +12,7 @@ namespace Micron
 		namespace Utility
 		{
 			Vector<VkExtensionProperties> GetAvailableInstanceExtensionProperties() noexcept;
-			Vector<MultibyteString> GetAvailableInstanceExtensionNames() noexcept;
 
-			Bool CheckRequiredExtensionsAreUnavailable() noexcept;
-
-			Vector<NullTerminatedConstantString> GetPlatformDependentInstanceExtensionNames() noexcept;
 			Vector<NullTerminatedConstantString> GetRequiredInstanceExtensionNames() noexcept;
 		}
 	}

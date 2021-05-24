@@ -4,11 +4,11 @@ namespace Micron
 {
 	UnicodeString StringConverter::MultibyteToUnicode(MultibyteString const &multibyteString) noexcept
 	{
-		return UnicodeString(multibyteString.begin(), multibyteString.end());
+		return UnicodeString(multibyteString.cbegin(), multibyteString.cend());
 	}
 
 	MultibyteString StringConverter::UnicodeToMultibyte(UnicodeString const &unicodeString) noexcept
 	{
-		return MultibyteString(unicodeString.begin(), unicodeString.end());
+		return MultibyteString(unicodeString.cbegin(), unicodeString.cend());
 	}
 }

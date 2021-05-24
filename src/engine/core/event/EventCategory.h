@@ -1,5 +1,5 @@
-#ifndef _MICRON_CORE_EVENT_EVENT_CATEGORY_H
-#define _MICRON_CORE_EVENT_EVENT_CATEGORY_H
+#ifndef _MICRON_CORE_ENGINE_EVENT_EVENT_CATEGORY_H
+#define _MICRON_CORE_ENGINE_EVENT_EVENT_CATEGORY_H
 
 #include "../types/BasicTypes.h"
 #include "../types/ContainerTypes.h"

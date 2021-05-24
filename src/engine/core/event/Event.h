@@ -1,5 +1,5 @@
-#ifndef _MICRON_CORE_EVENT_EVENT_H
-#define _MICRON_CORE_EVENT_EVENT_H
+#ifndef _MICRON_ENGINE_CORE_EVENT_EVENT_H
+#define _MICRON_ENGINE_CORE_EVENT_EVENT_H
 
 #include "EventCategory.h"
 

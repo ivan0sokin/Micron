@@ -12,9 +12,6 @@ namespace Micron
 		namespace Utility
 		{
 			Vector<VkLayerProperties> GetAvailableInstanceLayerProperties() noexcept;
-			Vector<MultibyteString> GetAvailableInstanceLayerNames() noexcept;
-
-			Bool CheckValidationLayersAreAvailable() noexcept;
 
 			constexpr Bool ValidationLayersEnabled() noexcept 
 			{

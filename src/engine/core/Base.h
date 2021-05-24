@@ -5,6 +5,8 @@
 #include <cstddef>
 #include <cassert>
 
+#include <ranges>
+
 #include "Platform.h"
 
 #if defined _MICRON_DEBUG

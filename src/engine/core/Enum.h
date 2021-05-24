@@ -1,5 +1,5 @@
-#ifndef _MICRON_CORE_ENUM_H
-#define _MICRON_CORE_ENUM_H
+#ifndef _MICRON_ENGINE_CORE_ENUM_H
+#define _MICRON_ENGINE_CORE_ENUM_H
 
 #include "types/BasicTypes.h"
 

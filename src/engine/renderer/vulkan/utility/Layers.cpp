@@ -34,41 +34,6 @@ namespace Micron
 
 				return availableInstanceLayerProperties;
 			}
-
-			Vector<MultibyteString> GetAvailableInstanceLayerNames() noexcept
-			{
-				auto availableInstanceLayerProperties = GetAvailableInstanceLayerProperties();
-
-				USize layerCount = availableInstanceLayerProperties.size();
-				Vector<MultibyteString> availableInstanceLayerNames = Vector<MultibyteString>(layerCount);
-			
-				for (USize i = 0; i < layerCount; ++i)
-				{
-					availableInstanceLayerNames[i] = availableInstanceLayerProperties[i].layerName;
-				}
-
-				return availableInstanceLayerNames;
-			}
-
-			Bool CheckValidationLayersAreAvailable() noexcept
-			{
-				auto validationLayers = GetValidationLayerNames();
-				auto availableLayers = GetAvailableInstanceLayerNames();
-
-				Bool allLayersFound = true;
-				for (auto const &layer : validationLayers)
-				{
-					if (std::find(availableLayers.begin(), availableLayers.end(), layer) != availableLayers.end())
-						CoreLogger::Info("Layer \"{}\" was found", layer);
-					else
-					{
-						CoreLogger::Error("Layer \"{}\" was not found", layer);
-						allLayersFound = false;
-					}
-				}
-
-				return allLayersFound;
-			}
 			
 			Vector<NullTerminatedConstantString> GetValidationLayerNames() noexcept
 			{

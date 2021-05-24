@@ -1,5 +1,5 @@
-#ifndef _MICRON_CORE_APPLICATION_H
-#define _MICRON_CORE_APPLICATION_H
+#ifndef _MICRON_ENGINE_APPLICATION_APPLICATION_H
+#define _MICRON_ENGINE_APPLICATION_APPLICATION_H
 
 #include "Console.h"
 #include "../window/Window.h"
@@ -31,7 +31,7 @@ namespace Micron
         Void TryOpenTheWindowOrExtraShutdown() noexcept;
     private:
         virtual Void OnInitialize() noexcept = 0;
-        virtual Void OnUserUpdate(Real32 deltaTime) noexcept = 0;
+        virtual Void OnUserUpdate(Float32 deltaTime) noexcept = 0;
         virtual Void OnDestroy() noexcept = 0;
     protected:
         Rc<Window> GetWindow() noexcept;

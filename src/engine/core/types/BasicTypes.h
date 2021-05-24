@@ -29,9 +29,9 @@ namespace Micron
 	using UInt32 = std::uint32_t;
 	using UInt64 = std::uint64_t;
 
-	using Real32 = std::float32_t;
-	using Real64 = std::float64_t;
-	using Real128 = std::float128_t;
+	using Float32 = std::float32_t;
+	using Float64 = std::float64_t;
+	using Float128 = std::float128_t;
 	
 	using Bool = bool;
 	using Void = void;
