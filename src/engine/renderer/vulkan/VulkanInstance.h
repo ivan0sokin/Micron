@@ -21,7 +21,7 @@ namespace Micron
 			Void Create() noexcept;
 			Void Destroy() noexcept;
 
-			Rc<Surface> CreateSurface() noexcept;
+			Rc<Surface> CreateSurface() const noexcept;
 
 			Vector<VkPhysicalDevice> GetPhysicalDeviceHandles() const noexcept;
 
@@ -38,9 +38,9 @@ namespace Micron
 			Bool CheckRequiredExtensionsAreAvailable() const noexcept;
 			Vector<MultibyteString> GetAvailableExtensionNames() const noexcept;
 
-			Rc<LinuxSurface> CreateLinuxSurface() noexcept;
-			Rc<WindowsSurface> CreateWindowsSurface() noexcept;
-			Rc<MacOSSurface> CreateMacOSSurface() noexcept;
+			Rc<LinuxSurface> CreateLinuxSurface() const noexcept;
+			Rc<WindowsSurface> CreateWindowsSurface() const noexcept;
+			Rc<MacOSSurface> CreateMacOSSurface() const noexcept;
 			Rc<IOPlatformWindow> GetPlatformWindow() const noexcept;
 		private:
 			VkInstance handle = VK_NULL_HANDLE;

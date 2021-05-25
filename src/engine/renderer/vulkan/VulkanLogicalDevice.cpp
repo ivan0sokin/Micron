@@ -19,10 +19,10 @@ namespace Micron
             deviceCreateInfo.ppEnabledLayerNames = enabledLayers.data();
 
             VkPhysicalDeviceFeatures enabledFeatures;
-            vkGetPhysicalDeviceFeatures(physicalDevice->GetHandle(), &enabledFeatures);
+            vkGetPhysicalDeviceFeatures(this->physicalDeviceHandle, &enabledFeatures);
             deviceCreateInfo.pEnabledFeatures = &enabledFeatures;
 
-            Utility::Result deviceCreate = vkCreateDevice(this->physicalDevice->GetHandle(), &deviceCreateInfo, nullptr, &this->handle);
+            Utility::Result deviceCreate = vkCreateDevice(this->physicalDeviceHandle, &deviceCreateInfo, nullptr, &this->handle);
 
             if (deviceCreate.Failed())
             {
@@ -62,7 +62,7 @@ namespace Micron
                 VkQueue queueHandle;
                 vkGetDeviceQueue(this->handle, queueFamilyIndex, LogicalDevice::queueIndex, &queueHandle);
 
-                queues.emplace_back(new Queue(queueHandle));
+                queues.emplace(queueFamilyIndex, new Queue(queueHandle));
             });
         }
 

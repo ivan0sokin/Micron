@@ -3,7 +3,8 @@
 
 #include "VulkanPhysicalDeviceTypes.h"
 #include "VulkanPhysicalDeviceMemory.hpp"
-#include "VulkanQueueFamily.hpp"
+#include "VulkanQueueFamily.h"
+#include "VulkanLogicalDevice.h"
 
 namespace Micron
 {
@@ -21,6 +22,8 @@ namespace Micron
 
 			Void Initialize() noexcept;
 
+			Rc<LogicalDevice> CreateLogicalDevice() const noexcept;			
+
 			constexpr PhysicalDeviceType Type() const noexcept { return type; }
 			constexpr MultibyteString Name() const noexcept { return name; }
 			constexpr UInt32 VendorID() const noexcept { return vendorID; }
@@ -28,12 +31,10 @@ namespace Micron
 			inline Version DriverVersion() const noexcept { return driverVersion; }
 			inline Version VulkanVersion() const noexcept { return vulkanVersion; }
 		
-			constexpr Bool HasGraphicsQueue() const noexcept { return std::ranges::any_of(std::as_const(queueFamilies), [](auto queueFamily) { return queueFamily->SupportOperation(QueueOperation::Graphics); }); }
+			constexpr Bool HasGraphicsQueueFamily() const noexcept { return std::ranges::any_of(std::as_const(queueFamilies), [](auto queueFamily) { return queueFamily->SupportOperation(QueueOperation::Graphics); }); }
 
 			inline Rc<PhysicalDeviceMemory> GetMemory() const noexcept { return memory; }
 			inline Vector<Rc<QueueFamily>> GetQueueFamilies() const noexcept { return queueFamilies; }
-
-			constexpr VkPhysicalDevice GetHandle() const noexcept { return handle; }
 		private:
 			Void InitializeMemory() noexcept;
 			Void InitializeQueueFamilies() noexcept;

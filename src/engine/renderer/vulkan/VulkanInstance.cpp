@@ -167,7 +167,7 @@ namespace Micron
 			return physicalDeviceHandles;
 		}
 		
-		Rc<Surface> Instance::CreateSurface() noexcept
+		Rc<Surface> Instance::CreateSurface() const noexcept
 		{
 			switch (Engine::CurrentPlatform())
 			{
@@ -184,7 +184,7 @@ namespace Micron
 			_MICRON_ASSERT(false);
 		}
 
-		Rc<LinuxSurface> Instance::CreateLinuxSurface() noexcept
+		Rc<LinuxSurface> Instance::CreateLinuxSurface() const noexcept
 		{
 			#if defined MICRON_CURRENT_PLATFORM_LINUX
 				auto linuxWindow = DynamicPointerCast<IOLinuxWindow>(this->GetPlatformWindow());
@@ -194,7 +194,7 @@ namespace Micron
 			return MakeRc<LinuxSurface>();
 		}
 		
-		Rc<WindowsSurface> Instance::CreateWindowsSurface() noexcept
+		Rc<WindowsSurface> Instance::CreateWindowsSurface() const noexcept
 		{
 			#if defined MICRON_CURRENT_PLATFORM_WINDOWS
 				auto win32Window = DynamicPointerCast<IOWin32Window>(this->GetPlatformWindow());
@@ -204,7 +204,7 @@ namespace Micron
 			return MakeRc<WindowsSurface>();
 		}
 		
-		Rc<MacOSSurface> Instance::CreateMacOSSurface() noexcept
+		Rc<MacOSSurface> Instance::CreateMacOSSurface() const noexcept
 		{
 			#if defined MICRON_CURRENT_PLATFORM_MACOS
 				auto macOSWindow = DynamicPointerCast<IOMacOSWindow>(this->GetPlatformWindow());

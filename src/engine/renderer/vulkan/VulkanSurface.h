@@ -9,6 +9,7 @@ namespace Micron
     {
         class Surface
         {
+            friend class QueueFamily;
         public:
             inline Surface() noexcept = default;
             virtual inline ~Surface() noexcept = default;
@@ -21,7 +22,7 @@ namespace Micron
             Void Destroy() noexcept;
         protected:
             VkSurfaceKHR handle = VK_NULL_HANDLE;
-            VkInstance instanceHandle;
+            VkInstance instanceHandle = VK_NULL_HANDLE;
         };
     }
 }

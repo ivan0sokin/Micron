@@ -48,10 +48,15 @@ namespace Micron
 			UInt32 queueFamilyIndex = 0;
 			std::ranges::for_each(std::as_const(physicalDeviceQueueFamilies), [&](auto const &queueFamilyProperties)
 			{
-				queueFamilies.emplace_back(new QueueFamily(queueFamilyIndex, queueFamilyProperties));
+				queueFamilies.emplace_back(new QueueFamily(this->handle, queueFamilyIndex, queueFamilyProperties));
 
 				++queueFamilyIndex;
 			});
+		}
+
+		Rc<LogicalDevice> PhysicalDevice::CreateLogicalDevice() const noexcept
+		{
+			return MakeRc<LogicalDevice>(this->handle);
 		}
 	}
 }

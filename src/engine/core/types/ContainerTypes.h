@@ -33,10 +33,10 @@ namespace Micron
 	template <typename T> using Deque = std::deque<T>;
 	template <typename T> using Queue = std::queue<T>;
 	template <typename T> using Stack = std::stack<T>;
-	template <typename KT, typename T> using HashMap = std::map<KT, T>;
-	template <typename KT, typename T> using UnorderedHashMap = std::unordered_map<KT, T>;
-	template <typename T> using HashSet = std::set<T>;
-	template <typename T> using UnorderedHashSet = std::unordered_set<T>;
+	template <typename KT, typename T> using Map = std::map<KT, T>;
+	template <typename KT, typename T> using UnorderedMap = std::unordered_map<KT, T>;
+	template <typename T> using Set = std::set<T>;
+	template <typename T> using UnorderedSet = std::unordered_set<T>;
 	template <USize S> using BitSet = std::bitset<S>;
 	template <typename T, USize Extent> using Span = std::span<T, Extent>;
 	template <typename T> using Optional = std::optional<T>;

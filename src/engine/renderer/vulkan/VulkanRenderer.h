@@ -27,6 +27,7 @@ namespace Micron
 
 		Void InitializeLogicalDevice() noexcept;
 		Void CreateLogicalDevice() noexcept;
+		UnorderedSet<UInt32> PickQueueFamilyIndices() const noexcept;
 		Void InitializeLogicalDeviceQueues() noexcept;
 		Void DestroyLogicalDevice() noexcept;
 
@@ -34,10 +35,10 @@ namespace Micron
 		Void DestroySurface() noexcept;
 	private:
 		Box<Vulkan::Instance> instance;
+		Rc<Vulkan::Surface> surface;
 		Vector<Rc<Vulkan::PhysicalDevice>> physicalDevices;
 		USize pickedPhysicalDeviceIndex = 0;
-		Box<Vulkan::LogicalDevice> logicalDevice;
-		Rc<Vulkan::Surface> surface;
+		Rc<Vulkan::LogicalDevice> logicalDevice;
 	};
 }
 
