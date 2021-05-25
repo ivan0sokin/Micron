@@ -1,7 +1,12 @@
 #ifndef _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_INSTANCE_H
 #define _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_INSTANCE_H
 
-#include "utility/VulkanUtilities.h"
+#include "platform/VulkanLinuxSurface.h"
+#include "platform/VulkanWindowsSurface.h"
+#include "platform/VulkanMacOSSurface.h"
+
+#include <IOWindow/IOWin32Window.h>
+#include <IOWindow/IOLinuxWindow.h>
 
 namespace Micron
 {
@@ -11,24 +16,18 @@ namespace Micron
 		{
 		public:
 			inline ~Instance() noexcept = default;
-			
-			Instance(Instance const &other) = delete;
-			Instance(Instance &&other) = delete;
-    		Void operator=(Instance const &other) = delete;
-			Void operator=(Instance &&other) = delete;
+			inline Instance() noexcept = default;
 
-			Void Initialize() noexcept;
+			Void Create() noexcept;
 			Void Destroy() noexcept;
-		
+
+			Rc<Surface> CreateSurface() noexcept;
+
 			Vector<VkPhysicalDevice> GetPhysicalDeviceHandles() const noexcept;
 
 			inline Vector<NullTerminatedConstantString> GetEnabledLayers() const noexcept { return enabledLayers; }
 			inline Vector<NullTerminatedConstantString> GetEnabledExtensions() const noexcept { return enabledExtensions; }
-
-			static Rc<Instance> GetInstance() noexcept;
 		private:
-			inline Instance() noexcept = default;
-
 			VkApplicationInfo PickApplicationInfo() const noexcept;
 
 			Void InitializeEnabledLayers() noexcept;
@@ -38,11 +37,14 @@ namespace Micron
 			Void InitializeEnabledExtensions() noexcept;
 			Bool CheckRequiredExtensionsAreAvailable() const noexcept;
 			Vector<MultibyteString> GetAvailableExtensionNames() const noexcept;
+
+			Rc<LinuxSurface> CreateLinuxSurface() noexcept;
+			Rc<WindowsSurface> CreateWindowsSurface() noexcept;
+			Rc<MacOSSurface> CreateMacOSSurface() noexcept;
+			Rc<IOPlatformWindow> GetPlatformWindow() const noexcept;
 		private:
 			VkInstance handle = VK_NULL_HANDLE;
 		private:
-			inline static Rc<Instance> instance;
-
 			Vector<NullTerminatedConstantString> enabledLayers;
 			Vector<NullTerminatedConstantString> enabledExtensions;
 		};

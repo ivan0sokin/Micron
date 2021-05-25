@@ -21,6 +21,7 @@ namespace Micron
 
         constexpr MultibyteStringView GetName() const noexcept { return name; }
         constexpr Version GetVersion() const noexcept { return version; }
+        Rc<Window> GetWindow() noexcept;
 
         static Rc<Application> GetInstance() noexcept;
     private:
@@ -33,8 +34,6 @@ namespace Micron
         virtual Void OnInitialize() noexcept = 0;
         virtual Void OnUserUpdate(Float32 deltaTime) noexcept = 0;
         virtual Void OnDestroy() noexcept = 0;
-    protected:
-        Rc<Window> GetWindow() noexcept;
     protected:
         MultibyteStringView name = "Something Ends, Something Begins";
         Version version = Version(0, 0, 0);

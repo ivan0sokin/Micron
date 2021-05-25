@@ -14,8 +14,8 @@ namespace Micron
             inline LogicalDevice() noexcept = default;
             inline ~LogicalDevice() noexcept = default;
 
-            inline LogicalDevice(Rc<PhysicalDevice> physicalDevice) noexcept :
-                physicalDevice(physicalDevice)
+            inline LogicalDevice(Rc<PhysicalDevice> physicalDevice, Vector<NullTerminatedConstantString> const &enabledLayers) noexcept :
+                physicalDevice(physicalDevice), enabledLayers(enabledLayers)
             {}
 
             Void Create() noexcept;
@@ -30,6 +30,7 @@ namespace Micron
             VkDevice handle = VK_NULL_HANDLE;
         private:
             Rc<PhysicalDevice> physicalDevice;
+            Vector<NullTerminatedConstantString> enabledLayers;
             Vector<UInt32> queueFamilyIndices;
             Vector<Rc<Queue>> queues;
         private:

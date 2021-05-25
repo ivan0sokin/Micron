@@ -20,13 +20,13 @@ namespace Micron
 
 		Void SetPreferences(WindowPreferences const &preferences) noexcept;
 
-		inline MultibyteStringView GetTitle() const noexcept { return title; }
-		inline UInt32 GetWidth() const noexcept { return resolution.width; }
-		inline UInt32 GetHeight() const noexcept { return resolution.height; }
-		inline Resolution GetResolution() const noexcept { return resolution; }
-		inline Position GetPosition() const noexcept { return position; }
+		constexpr MultibyteStringView GetTitle() const noexcept { return title; }
+		constexpr UInt32 GetWidth() const noexcept { return resolution.width; }
+		constexpr UInt32 GetHeight() const noexcept { return resolution.height; }
+		constexpr Resolution GetResolution() const noexcept { return resolution; }
+		constexpr Position GetPosition() const noexcept { return position; }
 		Position GetPositionCentered() noexcept;
-		inline Resolution GetScreenResolution() const noexcept { return screenResolution; }
+		constexpr Resolution GetScreenResolution() const noexcept { return screenResolution; }
 
 		Bool SetTitle(MultibyteStringView title) noexcept;
 		Bool SetResolution(Resolution const &resolution) noexcept;
@@ -40,6 +40,8 @@ namespace Micron
 
 		constexpr static MultibyteStringView DefaultTitle() noexcept { return "Titleless window"; }
 		constexpr static Resolution DefaultResolution() noexcept { return { 480, 360 }; }
+
+		inline Rc<IOWindow> GetInternalWindow() const noexcept { return internalWindow; }
 	private:
 		Bool Open() noexcept;
 		Void Close() noexcept;
@@ -68,6 +70,8 @@ namespace Micron
 		Void OnMouseButtonPressed(UInt32 button, Position const &position) noexcept;
 		Void OnMouseButtonReleased(UInt32 button, Position const &position) noexcept;
 	private:
+		Rc<IOWindow> internalWindow;
+	private:
 		MultibyteStringView title;
 		Resolution resolution;
 		Position position;
@@ -75,8 +79,6 @@ namespace Micron
 		Position maximumPosition = { 0x7FFFFFFF, 0x7FFFFFFF };
 	private:
 		inline static Resolution screenResolution;
-	private:
-		IOWindow internalWindow;
 	};
 }
 

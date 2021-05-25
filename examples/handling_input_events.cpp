@@ -36,7 +36,7 @@ private:
 		);
 	}
 	
-	virtual void OnUserUpdate(Real32 deltaTime) noexcept override
+	virtual void OnUserUpdate(Micron::Float32 deltaTime) noexcept override
 	{
 		using namespace Micron;
 

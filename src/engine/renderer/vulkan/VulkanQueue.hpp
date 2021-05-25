@@ -17,7 +17,7 @@ namespace Micron
                 handle(queueHandle)
             {}
         private:
-            VkQueue handle;
+            VkQueue handle = VK_NULL_HANDLE;
         };
     }
 }

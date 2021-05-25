@@ -7,6 +7,8 @@ namespace Micron
 	Window::Window() noexcept
 	{
 		Input::Reset();
+
+		internalWindow = MakeRc<IOWindow>();
 		this->SetCallbacks();
 		this->InitializeScreenResolution();
 	}
@@ -14,10 +16,12 @@ namespace Micron
 	Void Window::SetPreferences(WindowPreferences const &preferences) noexcept
 	{
 		title = preferences.GetTitle();
+
 		if (title.empty())
 			CoreLogger::Warn("Window title is empty");
 
 		Resolution const requiredResolution = preferences.GetResolution();
+
 		if (CheckResolutionIsValid(requiredResolution))
 			resolution = requiredResolution;
 		else
@@ -31,6 +35,7 @@ namespace Micron
 		case PositionType::Any:
 		{
 			Position const requiredPosition = preferences.GetPosition();
+			
 			if (CheckPositionIsValid(requiredPosition))
 				position = requiredPosition;
 			else
@@ -54,19 +59,19 @@ namespace Micron
 	Void Window::SetMinimumResolution(Resolution const &resolution) noexcept
 	{
 		minimumResolution = resolution;
-		internalWindow.SetMinimumResolution({ resolution.width, resolution.height });
+		internalWindow->SetMinimumResolution({ resolution.width, resolution.height });
 	}
 
 	Void Window::SetMaximumResolution(Resolution const &resolution) noexcept
 	{
 		maximumResolution = resolution;
-		internalWindow.SetMaximumResolution({ resolution.width, resolution.height });
+		internalWindow->SetMaximumResolution({ resolution.width, resolution.height });
 	}
 
 	Void Window::SetMaximumPosition(Position const &position) noexcept
 	{
 		maximumPosition = position;
-		internalWindow.SetMaximumPosition({ position.x, position.y });
+		internalWindow->SetMaximumPosition({ position.x, position.y });
 	}
 
 	Void Window::SetCallbacks() noexcept
@@ -77,34 +82,34 @@ namespace Micron
 
 	Void Window::SetWindowCallbacks() noexcept
 	{
-		internalWindow.OnKillFocus([&]()
+		internalWindow->OnKillFocus([&]()
 		{
 			_MICRON_DEBUG_LOG("KillFocusEvent()");
 			Input::keyboard->ClearStates();
 		});
 		
-		internalWindow.OnMove([&](Int32 x, Int32 y)
+		internalWindow->OnMove([&](Int32 x, Int32 y)
 		{
 			_MICRON_DEBUG_LOG("WindowMoveEvent(position: ({0}, {1}))", x, y);
 			position.x = x;
 			position.y = y;
 		});
 
-		internalWindow.OnResize([&](UInt32 width, UInt32 height)
+		internalWindow->OnResize([&](UInt32 width, UInt32 height)
 		{
 			_MICRON_DEBUG_LOG("WindowResizeEvent(resolution: {0}x{1})", width, height);
 			resolution.width = width;
 			resolution.height = height;
 		});
 
-		internalWindow.OnScreenResize([&](UInt32 width, UInt32 height)
+		internalWindow->OnScreenResize([&](UInt32 width, UInt32 height)
 		{
 			_MICRON_DEBUG_LOG("ScreenResizeEvent(resolution: {0}x{1})", width, height);
 			screenResolution.width = width;
 			screenResolution.height = height;
 		});
 
-		internalWindow.OnClose([&]()
+		internalWindow->OnClose([&]()
 		{
 			_MICRON_DEBUG_LOG("WindowCloseEvent()");
 			Application::GetInstance()->Shutdown();
@@ -113,7 +118,7 @@ namespace Micron
 
 	Void Window::SetInputCallbacks() noexcept
 	{
-		internalWindow.OnKeyboardInput([&](UInt32 keycode, UInt32 scancode, UInt32 action)
+		internalWindow->OnKeyboardInput([&](UInt32 keycode, UInt32 scancode, UInt32 action)
 		{
 			switch (action)
 			{
@@ -132,21 +137,21 @@ namespace Micron
 			}
 		});
 
-		internalWindow.OnMouseMove([&](Int32 x, Int32 y)
+		internalWindow->OnMouseMove([&](Int32 x, Int32 y)
 		{
 			_MICRON_DEBUG_LOG("MouseMoveEvent(position: ({0}, {1}))", x, y);
 			Input::eventBuffer.Push(std::move(MakeRc<MouseMoveEvent>(Position{ x, y })));
 			Input::mouse->OnMouseMove(x, y);
 		});
 
-		internalWindow.OnRawMouseMove([&](Int32 dx, Int32 dy)
+		internalWindow->OnRawMouseMove([&](Int32 dx, Int32 dy)
 		{
 			_MICRON_DEBUG_LOG("MouseRawMoveEvent(rawDelta: ({0}, {1}))", dx, dy);
 			Input::eventBuffer.Push(std::move(MakeRc<MouseRawMoveEvent>(RawDelta{ dx, dy })));
 			Input::mouse->OnRawMouseMove(dx, dy);
 		});
 		
-		internalWindow.OnMouseInput([&](UInt32 button, UInt32 action, Int32 x, Int32 y)
+		internalWindow->OnMouseInput([&](UInt32 button, UInt32 action, Int32 x, Int32 y)
 		{
 			switch (action)
 			{
@@ -165,14 +170,14 @@ namespace Micron
 			}
 		});
 
-		internalWindow.OnMouseScroll([&](Int32 deltaOffset, Int32 x, Int32 y)
+		internalWindow->OnMouseScroll([&](Int32 deltaOffset, Int32 x, Int32 y)
 		{
 			_MICRON_DEBUG_LOG("WheelScrollEvent(deltaOffset: {0}, position: ({1}, {2}))", deltaOffset, x, y);
 			Input::eventBuffer.Push(std::move(MakeRc<WheelScrollEvent>(deltaOffset, Position{ x, y })));
 			Input::mouse->OnWheelMove(deltaOffset, x, y);
 		});
 
-		internalWindow.OnMouseEnter([&](UInt32 action)
+		internalWindow->OnMouseEnter([&](UInt32 action)
 		{
 			switch (action)
 			{
@@ -194,7 +199,7 @@ namespace Micron
 
 	Void Window::InitializeScreenResolution() noexcept
 	{
-		auto screenResolution = internalWindow.GetScreenResolution();
+		auto screenResolution = internalWindow->GetScreenResolution();
 
 		Window::screenResolution.width = screenResolution.first;
 		Window::screenResolution.height = screenResolution.second;
@@ -258,47 +263,47 @@ namespace Micron
 
 	Bool Window::Open() noexcept
 	{
-		return internalWindow.Create(title, { resolution.width, resolution.height }, { position.x, position.y });
+		return internalWindow->Create(title, { resolution.width, resolution.height }, { position.x, position.y });
 	}
 
 	Void Window::Close() noexcept
 	{
-		internalWindow.Close();
+		internalWindow->Close();
 	}
 
 	Void Window::ProcessInputEvents() noexcept
 	{
-		internalWindow.ProcessEvents();
+		internalWindow->ProcessEvents();
 	}
 
 	Void Window::EnableAutorepeat() noexcept
 	{
-		internalWindow.EnableAutorepeat();
+		internalWindow->EnableAutorepeat();
 	}
 
 	Void Window::DisableAutorepeat() noexcept
 	{
-		internalWindow.DisableAutorepeat();
+		internalWindow->DisableAutorepeat();
 	}
 
 	Void Window::EnableRawMouseInput() noexcept
 	{
-		internalWindow.EnableRawMouseInput();
+		internalWindow->EnableRawMouseInput();
 	}
 
 	Void Window::DisableRawMouseInput() noexcept
 	{
-		internalWindow.DisableRawMouseInput();
+		internalWindow->DisableRawMouseInput();
 	}
 
 	Void Window::EnableCursor() noexcept
 	{
-		internalWindow.EnableMouseCursor();
+		internalWindow->EnableMouseCursor();
 	}
 
 	Void Window::DisableCursor() noexcept
 	{
-		internalWindow.DisableMouseCursor();
+		internalWindow->DisableMouseCursor();
 	}
 
 	Void Window::OnScreenResolutionChange(Resolution const &screenResolution) noexcept
@@ -319,7 +324,7 @@ namespace Micron
 
 	Bool Window::SetTitle(MultibyteStringView title) noexcept
 	{
-		Bool internalWindowTitleChanged = internalWindow.SetTitle(title);
+		Bool internalWindowTitleChanged = internalWindow->SetTitle(title);
 		if (internalWindowTitleChanged)
 			this->title = title;
 
@@ -328,7 +333,7 @@ namespace Micron
 
 	Bool Window::SetResolution(Resolution const &resolution) noexcept
 	{
-		Bool internalWindowResolutionChanged = internalWindow.SetResolution({ resolution.width, resolution.height });
+		Bool internalWindowResolutionChanged = internalWindow->SetResolution({ resolution.width, resolution.height });
 		if (internalWindowResolutionChanged)
 			this->resolution = resolution;
 
@@ -337,7 +342,7 @@ namespace Micron
 
 	Bool Window::SetPosition(Position const &position) noexcept
 	{
-		Bool internalWindowPositionChanged = internalWindow.SetPosition({ position.x, position.y });
+		Bool internalWindowPositionChanged = internalWindow->SetPosition({ position.x, position.y });
 		if (internalWindowPositionChanged)
 			this->position = position;
 
@@ -353,6 +358,6 @@ namespace Micron
 
 	Bool Window::SetScreenResolution(Resolution const &screenResolution) noexcept
 	{
-		return internalWindow.SetScreenResolution({ screenResolution.width, screenResolution.height });
+		return internalWindow->SetScreenResolution({ screenResolution.width, screenResolution.height });
 	}
 }

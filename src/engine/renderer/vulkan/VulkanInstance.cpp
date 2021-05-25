@@ -1,16 +1,12 @@
 #include "VulkanInstance.h"
 
-#include "../../application/Application.h"
 #include "../../Engine.h"
-
 
 namespace Micron
 {
 	namespace Vulkan
 	{
-
-
-		Void Instance::Initialize() noexcept
+		Void Instance::Create() noexcept
 		{
 			VkInstanceCreateInfo instanceCreateInfo = {};
 			instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -34,7 +30,7 @@ namespace Micron
 				_MICRON_SHUTDOWN();
 			}
 
-			CoreLogger::Info("Vulkan instance initialized");
+			CoreLogger::Info("Vulkan instance created");
 		}
 
 		VkApplicationInfo Instance::PickApplicationInfo() const noexcept
@@ -137,7 +133,7 @@ namespace Micron
 
 			return availableInstanceExtensionNames;
 		}
-
+		
 		Vector<VkPhysicalDevice> Instance::GetPhysicalDeviceHandles() const noexcept
 		{
 			UInt32 physicalDeviceCount = 0;
@@ -171,23 +167,68 @@ namespace Micron
 			return physicalDeviceHandles;
 		}
 		
-		Rc<Instance> Instance::GetInstance() noexcept
+		Rc<Surface> Instance::CreateSurface() noexcept
 		{
-			if (!instance)
-				instance.reset(new Instance());
-			
-			return instance;
+			switch (Engine::CurrentPlatform())
+			{
+			case Platform::Linux:
+				return this->CreateLinuxSurface();
+			case Platform::Windows:
+				return this->CreateWindowsSurface();
+			case Platform::MacOS:
+				return this->CreateMacOSSurface();
+			default:
+				return MakeRc<Surface>();
+			}
+
+			_MICRON_ASSERT(false);
+		}
+
+		Rc<LinuxSurface> Instance::CreateLinuxSurface() noexcept
+		{
+			#if defined MICRON_CURRENT_PLATFORM_LINUX
+				auto linuxWindow = DynamicPointerCast<IOLinuxWindow>(this->GetPlatformWindow());
+				return MakeRc<LinuxSurface>();
+			#endif
+
+			return MakeRc<LinuxSurface>();
+		}
+		
+		Rc<WindowsSurface> Instance::CreateWindowsSurface() noexcept
+		{
+			#if defined MICRON_CURRENT_PLATFORM_WINDOWS
+				auto win32Window = DynamicPointerCast<IOWin32Window>(this->GetPlatformWindow());
+				return MakeRc<WindowsSurface>(this->handle, win32Window->GetWindowHandle(), GetModuleHandle(nullptr));
+			#endif
+
+			return MakeRc<WindowsSurface>();
+		}
+		
+		Rc<MacOSSurface> Instance::CreateMacOSSurface() noexcept
+		{
+			#if defined MICRON_CURRENT_PLATFORM_MACOS
+				auto macOSWindow = DynamicPointerCast<IOMacOSWindow>(this->GetPlatformWindow());
+				return MakeRc<MacOSSurface>();
+			#endif
+
+			return MakeRc<MacOSSurface>();
+		}
+		
+		Rc<IOPlatformWindow> Instance::GetPlatformWindow() const noexcept
+		{
+			return Application::GetInstance()->GetWindow()->GetInternalWindow()->GetPlatformWindow();
 		}
 
 		Void Instance::Destroy() noexcept
 		{
 			if (this->handle == nullptr)
 			{
-				CoreLogger::Error("Can not destroy Vulkan instance, because it is not initialized");
+				CoreLogger::Error("Can not destroy Vulkan instance, because it is not created");
 				return;
 			}
 
 			vkDestroyInstance(this->handle, nullptr);
 		}
+	
 	}
 }

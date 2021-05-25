@@ -14,14 +14,16 @@ namespace Micron
 			inline ~MemoryHeap() noexcept = default;
 
 			constexpr MemoryHeap(VkMemoryHeap const &memoryHeap) noexcept :
-				heap(memoryHeap)
+				size(memoryHeap.size), isDeviceLocal(static_cast<Bool>(memoryHeap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)), multiInstance(static_cast<Bool>(memoryHeap.flags & VK_MEMORY_HEAP_MULTI_INSTANCE_BIT))
 			{}
 
-			constexpr USize Size() const noexcept { return heap.size; }
-			constexpr Bool IsDeviceLocal() const noexcept { return static_cast<Bool>(heap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT); }
-			constexpr Bool IsSingleInstance() const noexcept { return !static_cast<Bool>(heap.flags & VK_MEMORY_HEAP_MULTI_INSTANCE_BIT); }
+			constexpr USize Size() const noexcept { return size; }
+			constexpr Bool IsDeviceLocal() const noexcept { return isDeviceLocal; }
+			constexpr Bool MultiInstance() const noexcept { return multiInstance; }
 		private:
-			VkMemoryHeap heap;
+			USize size;
+			Bool isDeviceLocal;
+			Bool multiInstance;
 		};
 	}
 }

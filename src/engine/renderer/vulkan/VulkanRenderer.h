@@ -20,7 +20,7 @@ namespace Micron
 
 		constexpr API GetAPI() const noexcept override { return API::Vulkan; }
 	private:
-		Void InitializeInstance() noexcept;
+		Void CreateInstance() noexcept;
 		Void DestroyInstance() noexcept;
 
 		Void InitializePhysicalDevices() noexcept;
@@ -29,11 +29,15 @@ namespace Micron
 		Void CreateLogicalDevice() noexcept;
 		Void InitializeLogicalDeviceQueues() noexcept;
 		Void DestroyLogicalDevice() noexcept;
+
+		Void CreateSurface() noexcept;
+		Void DestroySurface() noexcept;
 	private:
-		Rc<Vulkan::Instance> instance;
+		Box<Vulkan::Instance> instance;
 		Vector<Rc<Vulkan::PhysicalDevice>> physicalDevices;
 		USize pickedPhysicalDeviceIndex = 0;
 		Box<Vulkan::LogicalDevice> logicalDevice;
+		Rc<Vulkan::Surface> surface;
 	};
 }
 

@@ -7,17 +7,18 @@ namespace Micron
 {
 	Void VulkanRenderer::Initialize() noexcept
 	{
-		this->InitializeInstance();
+		this->CreateInstance();
 		this->InitializePhysicalDevices();
 		this->InitializeLogicalDevice();
+		this->CreateSurface();
 
 		CoreLogger::Info("Vulkan renderer initialized");
 	}
 	
-	Void VulkanRenderer::InitializeInstance() noexcept
+	Void VulkanRenderer::CreateInstance() noexcept
 	{
-		instance = Vulkan::Instance::GetInstance();
-		instance->Initialize();
+		instance = MakeBox<Vulkan::Instance>();
+		instance->Create();
 	}
 	
 	Void VulkanRenderer::DestroyInstance() noexcept
@@ -53,7 +54,7 @@ namespace Micron
 	
 	Void VulkanRenderer::CreateLogicalDevice() noexcept
 	{
-		logicalDevice = MakeBox<Vulkan::LogicalDevice>(physicalDevices[pickedPhysicalDeviceIndex]);
+		logicalDevice = MakeBox<Vulkan::LogicalDevice>(physicalDevices[pickedPhysicalDeviceIndex], instance->GetEnabledLayers());
 
 		auto queueFamilies = physicalDevices[pickedPhysicalDeviceIndex]->GetQueueFamilies();
 		logicalDevice->SetQueueFamilyIndices(
@@ -77,9 +78,22 @@ namespace Micron
 		logicalDevice->Destroy();
 		logicalDevice.reset();
 	}
+	
+	Void VulkanRenderer::CreateSurface() noexcept
+	{
+		surface = instance->CreateSurface();
+		surface->Create();
+	}
+	
+	Void VulkanRenderer::DestroySurface() noexcept
+	{
+		surface->Destroy();
+		surface.reset();
+	}
 
 	Void VulkanRenderer::Destroy() noexcept
 	{
+		this->DestroySurface();
 		this->DestroyLogicalDevice();
 		this->DestroyInstance();
 

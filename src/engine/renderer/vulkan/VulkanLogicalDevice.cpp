@@ -15,9 +15,6 @@ namespace Micron
             deviceCreateInfo.queueCreateInfoCount = static_cast<UInt32>(queueCreateInfos.size());
             deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
 
-            auto instance = Instance::GetInstance();
-
-            auto enabledLayers = instance->GetEnabledLayers();
             deviceCreateInfo.enabledLayerCount = static_cast<UInt32>(enabledLayers.size());
             deviceCreateInfo.ppEnabledLayerNames = enabledLayers.data();
 
@@ -73,10 +70,10 @@ namespace Micron
         {
             if (this->handle == nullptr)
             {
-                CoreLogger::Error("Can not destroy Vulkan logical device, because it is not initialized");
+                CoreLogger::Error("Can not destroy Vulkan logical device, because it is not created");
                 return;
             }
-
+            
             vkDestroyDevice(this->handle, nullptr);
         }
     }
