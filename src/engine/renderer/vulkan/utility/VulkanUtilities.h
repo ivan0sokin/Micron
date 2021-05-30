@@ -3,7 +3,5 @@
 
 #include "Result.hpp"
 #include "VersionConversion.hpp"
-#include "Extensions.h"
-#include "Layers.h"
 
 #endif

@@ -24,12 +24,12 @@ namespace Micron
 
 			Rc<LogicalDevice> CreateLogicalDevice() const noexcept;			
 
-			constexpr PhysicalDeviceType Type() const noexcept { return type; }
-			constexpr MultibyteString Name() const noexcept { return name; }
-			constexpr UInt32 VendorID() const noexcept { return vendorID; }
-			constexpr UInt32 DeviceID() const noexcept { return deviceID; }
-			inline Version DriverVersion() const noexcept { return driverVersion; }
-			inline Version VulkanVersion() const noexcept { return vulkanVersion; }
+			constexpr PhysicalDeviceType GetType() const noexcept { return type; }
+			constexpr MultibyteString GetName() const noexcept { return name; }
+			constexpr UInt32 GetVendorID() const noexcept { return vendorID; }
+			constexpr UInt32 GetDeviceID() const noexcept { return deviceID; }
+			constexpr Version DriverVersion() const noexcept { return driverVersion; }
+			constexpr Version VulkanVersion() const noexcept { return vulkanVersion; }
 		
 			constexpr Bool HasGraphicsQueueFamily() const noexcept { return std::ranges::any_of(std::as_const(queueFamilies), [](auto queueFamily) { return queueFamily->SupportOperation(QueueOperation::Graphics); }); }
 

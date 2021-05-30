@@ -1,5 +1,5 @@
-#ifndef _MICRON_ENGINE_CORE_VERSION_H
-#define _MICRON_ENGINE_CORE_VERSION_H
+#ifndef _MICRON_ENGINE_CORE_VERSION_HPP
+#define _MICRON_ENGINE_CORE_VERSION_HPP
 
 #include "types/BasicTypes.h"
 #include "types/ContainerTypes.h"

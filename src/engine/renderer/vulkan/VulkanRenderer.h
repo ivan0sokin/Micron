@@ -20,7 +20,7 @@ namespace Micron
 
 		constexpr API GetAPI() const noexcept override { return API::Vulkan; }
 	private:
-		Void CreateInstance() noexcept;
+		Void InitializeInstance() noexcept;
 		Void DestroyInstance() noexcept;
 
 		Void InitializePhysicalDevices() noexcept;

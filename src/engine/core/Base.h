@@ -10,6 +10,8 @@
 #include "Platform.h"
 
 #if defined _MICRON_DEBUG
+    #define _MICRON_DEBUG_ENABLED 1
+
     #if MICRON_PLATFORM == MICRON_PLATFORM_WINDOWS
         #define _MICRON_DEBUG_BREAK() __debugbreak()
     #elif MICRON_PLATFORM == MICRON_PLATFORM_LINUX
@@ -18,13 +20,11 @@
     #else
        static_assert(false, "Abort for the current platform is not supported")
     #endif
-#else
-    #define _MICRON_DEBUG_BREAK()
-#endif
 
-#if defined _MICRON_DEBUG
     #define _MICRON_ASSERT(condition) if (!(condition)) _MICRON_DEBUG_BREAK()
 #else
+    #define _MICRON_DEBUG_ENABLED 0
+    #define _MICRON_DEBUG_BREAK()
     #define _MICRON_ASSERT(condition)
 #endif
 
@@ -32,6 +32,8 @@
 
 namespace Micron
 {
+    constexpr Bool IsDebugEnabled() noexcept { return static_cast<Bool>(_MICRON_DEBUG_ENABLED); }
+
     template <typename T> using Box = std::unique_ptr<T>;
     template <typename T> using Rc = std::shared_ptr<T>;
 

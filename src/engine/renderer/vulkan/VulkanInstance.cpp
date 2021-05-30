@@ -6,6 +6,94 @@ namespace Micron
 {
 	namespace Vulkan
 	{
+		Void Instance::InitializeLayers() noexcept
+		{
+			auto availableLayerProperties = this->GetAvailableLayerProperties();
+
+			availableLayers.reserve(availableLayerProperties.size());
+
+			std::ranges::for_each(std::as_const(availableLayerProperties), [&](auto const &layerProperties)
+			{
+				availableLayers.emplace_back(new Layer(layerProperties));
+			});
+		}
+		
+		Vector<VkLayerProperties> Instance::GetAvailableLayerProperties() const noexcept
+		{
+			UInt32 layerCount = this->GetAvailableLayerCount();
+
+			Vector<VkLayerProperties> availableLayerProperties = Vector<VkLayerProperties>(layerCount);
+
+			Utility::Result layerPropertiesEnumerate = vkEnumerateInstanceLayerProperties(&layerCount, availableLayerProperties.data());
+
+			if (layerPropertiesEnumerate.Failed())
+			{
+				CoreLogger::Error("Failed to enumerate Vulkan instance layer properties, message: {}", layerPropertiesEnumerate.ToString());
+				return Vector<VkLayerProperties>();
+			}
+
+			return availableLayerProperties;
+		}
+		
+		UInt32 Instance::GetAvailableLayerCount() const noexcept
+		{
+			UInt32 layerCount = 0;
+
+			Utility::Result layerCountRetrieve = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+			if (layerCountRetrieve.Failed())
+			{
+				CoreLogger::Error("Failed to retrieve Vulkan instance layer count, message: {}", layerCountRetrieve.ToString());
+				return -1;
+			}
+
+			return layerCount;
+		}
+
+		Void Instance::InitializeExtensions() noexcept
+		{
+			auto availableExtensionProperties = this->GetAvailableExtensionProperties();
+
+			availableExtensions.reserve(availableExtensionProperties.size());
+
+			std::ranges::for_each(std::as_const(availableExtensionProperties), [&](auto const &extensionProperties)
+			{
+				availableExtensions.emplace_back(new Extension(extensionProperties));
+			});
+		}
+	
+		Vector<VkExtensionProperties> Instance::GetAvailableExtensionProperties() const noexcept
+		{
+			UInt32 extensionCount = this->GetAvailableExtensionCount();
+
+			Vector<VkExtensionProperties> availableExtensionProperties = Vector<VkExtensionProperties>(extensionCount);
+				
+			Utility::Result extensionPropertiesEnumerate = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, availableExtensionProperties.data());
+			
+			if (extensionPropertiesEnumerate.Failed())
+			{
+				CoreLogger::Error("Failed to enumerate Vulkan instance extension properties, message: {}", extensionPropertiesEnumerate.ToString());
+				return Vector<VkExtensionProperties>();
+			}
+				
+			return availableExtensionProperties;
+		}
+		
+		UInt32 Instance::GetAvailableExtensionCount() const noexcept
+		{
+			UInt32 extensionCount = 0;
+				
+			Utility::Result extensionCountRetrieve = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+			
+			if (extensionCountRetrieve.Failed())
+			{
+				CoreLogger::Error("Failed to retrieve Vulkan instance extension count, message: {}", extensionCountRetrieve.ToString());
+				return -1;
+			}
+
+			return extensionCount;
+		}
+
 		Void Instance::Create() noexcept
 		{
 			VkInstanceCreateInfo instanceCreateInfo = {};
@@ -14,13 +102,13 @@ namespace Micron
 			VkApplicationInfo applicationInfo = this->PickApplicationInfo();
 			instanceCreateInfo.pApplicationInfo = &applicationInfo;
 
-			this->InitializeEnabledLayers();
-			instanceCreateInfo.enabledLayerCount = static_cast<UInt32>(enabledLayers.size());
-			instanceCreateInfo.ppEnabledLayerNames = enabledLayers.data();
+			this->InitializeEnabledLayerNames();
+			instanceCreateInfo.enabledLayerCount = static_cast<UInt32>(enabledLayerNames.size());
+			instanceCreateInfo.ppEnabledLayerNames = enabledLayerNames.data();
 
-			this->InitializeEnabledExtensions();
-			instanceCreateInfo.enabledExtensionCount = static_cast<UInt32>(enabledExtensions.size());
-			instanceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
+			this->InitializeEnabledExtensionNames();
+			instanceCreateInfo.enabledExtensionCount = static_cast<UInt32>(enabledExtensionNames.size());
+			instanceCreateInfo.ppEnabledExtensionNames = enabledExtensionNames.data();
 
 			Utility::Result instanceCreate = vkCreateInstance(&instanceCreateInfo, nullptr, &this->handle);
 
@@ -48,26 +136,22 @@ namespace Micron
 			return applicationInfo;
 		}
 
-		Void Instance::InitializeEnabledLayers() noexcept
+		Void Instance::InitializeEnabledLayerNames() noexcept
 		{
-			Vector<NullTerminatedConstantString> validationLayers;
-			if (Utility::ValidationLayersEnabled() && this->CheckValidationLayersAreAvailable())
-				validationLayers = Utility::GetValidationLayerNames();
-
-			enabledLayers.insert(enabledLayers.cbegin(), validationLayers.cbegin(), validationLayers.cend());
+			if (Instance::validationLayersEnabled && this->CheckValidationLayersAreAvailable())
+				enabledLayerNames.insert(enabledLayerNames.cbegin(), Instance::validationLayerNames.cbegin(), Instance::validationLayerNames.cend());
 		}
 		
 		Bool Instance::CheckValidationLayersAreAvailable() const noexcept
 		{
-			auto validationLayers = Utility::GetValidationLayerNames();
-			auto availableLayers = this->GetAvailableLayerNames();
+			auto availableLayerNames = this->GetAvailableLayerNames();
 
-			return std::ranges::all_of(std::as_const(validationLayers), [&](auto const &layer)
+			return std::ranges::all_of(std::as_const(Instance::validationLayerNames), [&](auto layerName)
 			{
-				Bool layerFound = std::ranges::find(std::as_const(availableLayers), layer) != availableLayers.cend();
+				Bool layerFound = std::ranges::find(std::as_const(availableLayerNames), layerName) != availableLayerNames.cend();
 
 				if (!layerFound)
-					CoreLogger::Error("Layer \"{}\" was not found", layer);
+					CoreLogger::Error("Layer \"{}\" was not found", layerName);
 
 				return layerFound;
 			});
@@ -75,21 +159,19 @@ namespace Micron
 		
 		Vector<MultibyteString> Instance::GetAvailableLayerNames() const noexcept
 		{
-			auto availableInstanceLayerProperties = Utility::GetAvailableInstanceLayerProperties();
-
 			Vector<MultibyteString> availableLayerNames;
+			
+			availableLayerNames.reserve(availableLayers.size());
 
-			availableLayerNames.reserve(availableInstanceLayerProperties.size());
-
-			std::ranges::for_each(std::as_const(availableInstanceLayerProperties), [&](auto const &layerProperties)
+			std::ranges::for_each(std::as_const(availableLayers), [&](auto layer)
 			{
-				availableLayerNames.emplace_back(layerProperties.layerName);
+				availableLayerNames.emplace_back(layer->GetName());
 			});
 
 			return availableLayerNames;
 		}
 
-		Void Instance::InitializeEnabledExtensions() noexcept
+		Void Instance::InitializeEnabledExtensionNames() noexcept
 		{
 			if (!this->CheckRequiredExtensionsAreAvailable())
 			{
@@ -97,22 +179,19 @@ namespace Micron
 				_MICRON_SHUTDOWN();
 			}
 
-			Vector<NullTerminatedConstantString> requiredExtensions = Utility::GetRequiredInstanceExtensionNames();
-
-			enabledExtensions.insert(enabledExtensions.cbegin(), requiredExtensions.cbegin(), requiredExtensions.cend());
+			enabledExtensionNames.insert(enabledExtensionNames.cbegin(), Instance::requiredExtensionNames.cbegin(), Instance::requiredExtensionNames.cend());
 		}
 		
 		Bool Instance::CheckRequiredExtensionsAreAvailable() const noexcept
 		{
-			auto requiredExtensions = Utility::GetRequiredInstanceExtensionNames();
-			auto availableExtensions = this->GetAvailableExtensionNames();
+			auto availableExtensionNames = this->GetAvailableExtensionNames();
 
-			return std::ranges::all_of(std::as_const(requiredExtensions), [&](auto const &extension)
+			return std::ranges::all_of(std::as_const(Instance::requiredExtensionNames), [&](auto const &extensionName)
 			{
-				Bool extensionFound = std::ranges::find(std::as_const(availableExtensions), extension) != availableExtensions.cend();
+				Bool extensionFound = std::ranges::find(std::as_const(availableExtensionNames), extensionName) != availableExtensionNames.cend();
 
 				if (!extensionFound)
-					CoreLogger::Error("Extension \"{}\" was not found", extension);
+					CoreLogger::Error("Extension \"{}\" was not found", extensionName);
 
 				return extensionFound;
 			});
@@ -120,32 +199,37 @@ namespace Micron
 		
 		Vector<MultibyteString> Instance::GetAvailableExtensionNames() const noexcept
 		{
-			auto availableInstanceExtensionProperties = Utility::GetAvailableInstanceExtensionProperties();
-
 			Vector<MultibyteString> availableInstanceExtensionNames;
 
-			availableInstanceExtensionNames.reserve(availableInstanceExtensionProperties.size());
+			availableInstanceExtensionNames.reserve(availableExtensions.size());
 
-			std::ranges::for_each(std::as_const(availableInstanceExtensionProperties), [&](auto const &extensionProperties)
+			std::ranges::for_each(std::as_const(availableExtensions), [&](auto const &extension)
 			{
-				availableInstanceExtensionNames.emplace_back(extensionProperties.extensionName);
+				availableInstanceExtensionNames.emplace_back(extension->GetName());
 			});
 
 			return availableInstanceExtensionNames;
 		}
 		
+		Vector<Rc<PhysicalDevice>> Instance::GetPhysicalDevices() const noexcept
+		{
+			auto physicalDeviceHandles = this->GetPhysicalDeviceHandles();
+
+			Vector<Rc<PhysicalDevice>> physicalDevices;
+
+			physicalDevices.reserve(physicalDeviceHandles.size());
+
+			std::ranges::for_each(std::as_const(physicalDeviceHandles), [&](auto physicalDeviceHandle)
+			{
+				physicalDevices.emplace_back(new PhysicalDevice(physicalDeviceHandle));
+			});
+
+			return physicalDevices;
+		}
+
 		Vector<VkPhysicalDevice> Instance::GetPhysicalDeviceHandles() const noexcept
 		{
-			UInt32 physicalDeviceCount = 0;
-			{
-				Utility::Result physicalDeviceCountRetrieve = vkEnumeratePhysicalDevices(this->handle, &physicalDeviceCount, nullptr);
-
-				if (physicalDeviceCountRetrieve.Failed())
-				{
-					CoreLogger::Error("Failed to retrieve physical device count, message: {}", physicalDeviceCountRetrieve.ToString());
-					return Vector<VkPhysicalDevice>();
-				}
-			}
+			UInt32 physicalDeviceCount = this->GetPhysicalDeviceCount();
 			
 			if (physicalDeviceCount == 0)
 			{
@@ -154,17 +238,31 @@ namespace Micron
 			}
 
 			Vector<VkPhysicalDevice> physicalDeviceHandles = Vector<VkPhysicalDevice>(physicalDeviceCount);
-			{
-				Utility::Result physicalDeviceEnumerate = vkEnumeratePhysicalDevices(this->handle, &physicalDeviceCount, physicalDeviceHandles.data());
 
-				if (physicalDeviceEnumerate.Failed())
-				{
-					CoreLogger::Error("Failed to enumerate physical devices, message: {}", physicalDeviceEnumerate.ToString());
-					return Vector<VkPhysicalDevice>();
-				}
+			Utility::Result physicalDeviceEnumerate = vkEnumeratePhysicalDevices(this->handle, &physicalDeviceCount, physicalDeviceHandles.data());
+
+			if (physicalDeviceEnumerate.Failed())
+			{
+				CoreLogger::Error("Failed to enumerate physical devices, message: {}", physicalDeviceEnumerate.ToString());
+				return Vector<VkPhysicalDevice>();
 			}
 
 			return physicalDeviceHandles;
+		}
+
+		UInt32 Instance::GetPhysicalDeviceCount() const noexcept
+		{
+			UInt32 physicalDeviceCount = 0;
+			
+			Utility::Result physicalDeviceCountRetrieve = vkEnumeratePhysicalDevices(this->handle, &physicalDeviceCount, nullptr);
+
+			if (physicalDeviceCountRetrieve.Failed())
+			{
+				CoreLogger::Error("Failed to retrieve physical device count, message: {}", physicalDeviceCountRetrieve.ToString());
+				return -1;
+			}
+
+			return physicalDeviceCount;
 		}
 		
 		Rc<Surface> Instance::CreateSurface() const noexcept

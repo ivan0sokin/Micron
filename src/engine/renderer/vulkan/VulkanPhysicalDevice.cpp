@@ -11,9 +11,10 @@ namespace Micron
 			vkGetPhysicalDeviceProperties(this->handle, &physicalDeviceProperties);
 
 			this->type = static_cast<PhysicalDeviceType>(physicalDeviceProperties.deviceType);
-			
+
 			this->name = physicalDeviceProperties.deviceName;
-			
+			TrimString(this->name);
+
 			this->deviceID = physicalDeviceProperties.deviceID;
 			this->vendorID = physicalDeviceProperties.vendorID;
 
@@ -31,7 +32,7 @@ namespace Micron
 		{
 			VkPhysicalDeviceMemoryProperties memoryProperties = {};
 			vkGetPhysicalDeviceMemoryProperties(this->handle, &memoryProperties);
-
+			
 			memory = MakeRc<PhysicalDeviceMemory>(memoryProperties);
 		}
 
@@ -39,7 +40,7 @@ namespace Micron
 		{
 			UInt32 queueFamilyCount = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties(this->handle, &queueFamilyCount, nullptr);
-			
+
 			queueFamilies.reserve(queueFamilyCount);
 
 			Vector<VkQueueFamilyProperties> physicalDeviceQueueFamilies = Vector<VkQueueFamilyProperties>(queueFamilyCount);

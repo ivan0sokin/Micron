@@ -7,6 +7,8 @@
 
 #include <vulkan/vulkan_xlib.h>
 
+#define PLATFORM_SURFACE_EXTENSION_NAME VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+
 namespace Micron
 {
     namespace Vulkan

@@ -1,6 +1,11 @@
 #ifndef _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_INSTANCE_H
 #define _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_INSTANCE_H
 
+#include "VulkanLayer.hpp"
+#include "VulkanExtension.hpp"
+
+#include "VulkanPhysicalDevice.h"
+
 #include "platform/VulkanLinuxSurface.h"
 #include "platform/VulkanWindowsSurface.h"
 #include "platform/VulkanMacOSSurface.h"
@@ -18,25 +23,40 @@ namespace Micron
 			inline ~Instance() noexcept = default;
 			inline Instance() noexcept = default;
 
+			Void InitializeLayers() noexcept;
+			Void InitializeExtensions() noexcept;
+
 			Void Create() noexcept;
 			Void Destroy() noexcept;
 
 			Rc<Surface> CreateSurface() const noexcept;
 
-			Vector<VkPhysicalDevice> GetPhysicalDeviceHandles() const noexcept;
+			Vector<Rc<PhysicalDevice>> GetPhysicalDevices() const noexcept;
 
-			inline Vector<NullTerminatedConstantString> GetEnabledLayers() const noexcept { return enabledLayers; }
-			inline Vector<NullTerminatedConstantString> GetEnabledExtensions() const noexcept { return enabledExtensions; }
+			inline Vector<Rc<Layer>> GetAvailableLayers() const noexcept { return availableLayers; }
+			inline Vector<Rc<Extension>> GetAvailableExtensions() const noexcept { return availableExtensions; }
+
+			inline Vector<NullTerminatedConstantString> GetEnabledLayerNames() const noexcept { return enabledLayerNames; }
+			inline Vector<NullTerminatedConstantString> GetEnabledExtensionNames() const noexcept { return enabledExtensionNames; }
 		private:
+			Vector<VkLayerProperties> GetAvailableLayerProperties() const noexcept;
+			UInt32 GetAvailableLayerCount() const noexcept;
+
+			Vector<VkExtensionProperties> GetAvailableExtensionProperties() const noexcept;
+			UInt32 GetAvailableExtensionCount() const noexcept;
+
 			VkApplicationInfo PickApplicationInfo() const noexcept;
 
-			Void InitializeEnabledLayers() noexcept;
+			Void InitializeEnabledLayerNames() noexcept;
 			Bool CheckValidationLayersAreAvailable() const noexcept;
 			Vector<MultibyteString> GetAvailableLayerNames() const noexcept;
 
-			Void InitializeEnabledExtensions() noexcept;
+			Void InitializeEnabledExtensionNames() noexcept;
 			Bool CheckRequiredExtensionsAreAvailable() const noexcept;
 			Vector<MultibyteString> GetAvailableExtensionNames() const noexcept;
+
+			Vector<VkPhysicalDevice> GetPhysicalDeviceHandles() const noexcept;
+			UInt32 GetPhysicalDeviceCount() const noexcept;
 
 			Rc<LinuxSurface> CreateLinuxSurface() const noexcept;
 			Rc<WindowsSurface> CreateWindowsSurface() const noexcept;
@@ -45,8 +65,15 @@ namespace Micron
 		private:
 			VkInstance handle = VK_NULL_HANDLE;
 		private:
-			Vector<NullTerminatedConstantString> enabledLayers;
-			Vector<NullTerminatedConstantString> enabledExtensions;
+			Vector<Rc<Layer>> availableLayers;
+			Vector<Rc<Extension>> availableExtensions;
+
+			Vector<NullTerminatedConstantString> enabledLayerNames;
+			Vector<NullTerminatedConstantString> enabledExtensionNames;
+		private:
+			constexpr static Bool validationLayersEnabled = Micron::IsDebugEnabled();
+			constexpr static Array< NullTerminatedConstantString, 1> validationLayerNames = { "VK_LAYER_KHRONOS_validation" };
+			constexpr static Array<NullTerminatedConstantString, 2> requiredExtensionNames = { VK_KHR_SURFACE_EXTENSION_NAME, PLATFORM_SURFACE_EXTENSION_NAME };
 		};
 	}
 }

@@ -7,6 +7,8 @@
 
 #include <vulkan/vulkan_macos.h>
 
+#define PLATFORM_SURFACE_EXTENSION_NAME VK_MVK_MACOS_SURFACE_EXTENSION_NAME
+
 namespace Micron
 {
     namespace Vulkan

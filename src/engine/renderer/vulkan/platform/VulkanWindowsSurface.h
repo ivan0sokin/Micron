@@ -7,6 +7,8 @@
 
 #include <vulkan/vulkan_win32.h>
 
+#define PLATFORM_SURFACE_EXTENSION_NAME VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+
 namespace Micron
 {
     namespace Vulkan

@@ -15,8 +15,8 @@ namespace Micron
             deviceCreateInfo.queueCreateInfoCount = static_cast<UInt32>(queueCreateInfos.size());
             deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
 
-            deviceCreateInfo.enabledLayerCount = static_cast<UInt32>(enabledLayers.size());
-            deviceCreateInfo.ppEnabledLayerNames = enabledLayers.data();
+            deviceCreateInfo.enabledLayerCount = static_cast<UInt32>(enabledLayerNames.size());
+            deviceCreateInfo.ppEnabledLayerNames = enabledLayerNames.data();
 
             VkPhysicalDeviceFeatures enabledFeatures;
             vkGetPhysicalDeviceFeatures(this->physicalDeviceHandle, &enabledFeatures);

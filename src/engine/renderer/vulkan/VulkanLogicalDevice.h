@@ -22,7 +22,7 @@ namespace Micron
 
             Void InitializeQueues() noexcept;
 
-            inline Void SetEnabledLayers(Vector<NullTerminatedConstantString> const &enabledLayers) noexcept { this->enabledLayers = enabledLayers; }
+            inline Void SetEnabledLayerNames(Vector<NullTerminatedConstantString> const &enabledLayerNames) noexcept { this->enabledLayerNames = enabledLayerNames; }
             inline Void SetQueueFamilyIndices(UnorderedSet<UInt32> const &queueFamilyIndices) noexcept { this->queueFamilyIndices = queueFamilyIndices; }
         private:
             Vector<VkDeviceQueueCreateInfo> PickQueueCreateInfos() const noexcept;
@@ -30,7 +30,7 @@ namespace Micron
             VkDevice handle = VK_NULL_HANDLE;
             VkPhysicalDevice physicalDeviceHandle = VK_NULL_HANDLE;
         private:
-            Vector<NullTerminatedConstantString> enabledLayers;
+            Vector<NullTerminatedConstantString> enabledLayerNames;
             UnorderedSet<UInt32> queueFamilyIndices;
             UnorderedMap<UInt32, Rc<Queue>> queues;
         private:

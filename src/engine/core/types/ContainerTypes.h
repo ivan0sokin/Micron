@@ -27,6 +27,7 @@
 
 namespace Micron
 {
+	template <typename T> using InitializerList = std::initializer_list<T>;
 	template <typename T> using Vector = std::vector<T>;
 	template <typename T> using List = std::list<T>;
 	template <typename T, USize S> using Array = std::array<T, S>;

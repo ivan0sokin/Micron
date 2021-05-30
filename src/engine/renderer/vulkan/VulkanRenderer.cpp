@@ -7,7 +7,7 @@ namespace Micron
 {
 	Void VulkanRenderer::Initialize() noexcept
 	{
-		this->CreateInstance();
+		this->InitializeInstance();
 		this->CreateSurface();
 		this->InitializePhysicalDevices();
 		this->InitializeLogicalDevice();
@@ -15,9 +15,13 @@ namespace Micron
 		CoreLogger::Info("Vulkan renderer initialized");
 	}
 	
-	Void VulkanRenderer::CreateInstance() noexcept
+	Void VulkanRenderer::InitializeInstance() noexcept
 	{
 		instance = MakeBox<Vulkan::Instance>();
+		
+		instance->InitializeLayers();
+		instance->InitializeExtensions();
+		
 		instance->Create();
 	}
 	
@@ -29,14 +33,11 @@ namespace Micron
 	
 	Void VulkanRenderer::InitializePhysicalDevices() noexcept
 	{
-		auto physicalDeviceHandles = instance->GetPhysicalDeviceHandles();
+		physicalDevices = instance->GetPhysicalDevices();
 
-		physicalDevices.reserve(physicalDeviceHandles.size());
-
-		std::ranges::for_each(std::as_const(physicalDeviceHandles), [&](auto physicalDeviceHandle)
+		std::ranges::for_each(physicalDevices, [&](auto &physicalDevice)
 		{
-			physicalDevices.emplace_back(new Vulkan::PhysicalDevice(physicalDeviceHandle));
-			physicalDevices.back()->Initialize();
+			physicalDevice->Initialize();
 		});
 
 		if (std::ranges::none_of(std::as_const(physicalDevices), [](auto physicalDevice) { return physicalDevice->HasGraphicsQueueFamily(); }))
@@ -56,7 +57,7 @@ namespace Micron
 	{
 		logicalDevice = physicalDevices[pickedPhysicalDeviceIndex]->CreateLogicalDevice();
 
-		logicalDevice->SetEnabledLayers(instance->GetEnabledLayers());
+		logicalDevice->SetEnabledLayerNames(instance->GetEnabledLayerNames());
 
 		auto queueFamilyIndices = this->PickQueueFamilyIndices();
 		logicalDevice->SetQueueFamilyIndices(queueFamilyIndices);
