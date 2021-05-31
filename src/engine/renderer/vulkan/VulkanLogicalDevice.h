@@ -1,6 +1,7 @@
 #ifndef _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_LOGICAL_DEVICE_H
 #define _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_LOGICAL_DEVICE_H
 
+#include "VulkanExtension.hpp"
 #include "VulkanQueue.hpp"
 
 namespace Micron
@@ -13,16 +14,16 @@ namespace Micron
             inline LogicalDevice() noexcept = default;
             inline ~LogicalDevice() noexcept = default;
 
-            inline LogicalDevice(VkPhysicalDevice physicalDeviceHandle) noexcept :
-                physicalDeviceHandle(physicalDeviceHandle)
+            inline LogicalDevice(VkPhysicalDevice physicalDeviceHandle, UnorderedSet<UInt32> const &queueFamilyIndices) noexcept :
+                physicalDeviceHandle(physicalDeviceHandle),
+                queueFamilyIndices(queueFamilyIndices)
             {}
 
-            Void Create() noexcept;
-            Void Destroy() noexcept;
+            Void CreateHandle(Vector<NullTerminatedConstantString> const &enabledExtensionNames) noexcept;
+            Void DestroyHandle() noexcept;
 
             Void InitializeQueues() noexcept;
 
-            inline Void SetEnabledLayerNames(Vector<NullTerminatedConstantString> const &enabledLayerNames) noexcept { this->enabledLayerNames = enabledLayerNames; }
             inline Void SetQueueFamilyIndices(UnorderedSet<UInt32> const &queueFamilyIndices) noexcept { this->queueFamilyIndices = queueFamilyIndices; }
         private:
             Vector<VkDeviceQueueCreateInfo> PickQueueCreateInfos() const noexcept;
@@ -30,7 +31,6 @@ namespace Micron
             VkDevice handle = VK_NULL_HANDLE;
             VkPhysicalDevice physicalDeviceHandle = VK_NULL_HANDLE;
         private:
-            Vector<NullTerminatedConstantString> enabledLayerNames;
             UnorderedSet<UInt32> queueFamilyIndices;
             UnorderedMap<UInt32, Rc<Queue>> queues;
         private:

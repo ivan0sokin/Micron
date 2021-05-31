@@ -4,7 +4,7 @@ namespace Micron
 {
     namespace Vulkan
     {
-        Void MacOSSurface::Create() noexcept 
+        Void MacOSSurface::CreateHandle() noexcept 
         {
             VkMacOSSurfaceCreateInfoMVK macOSSurfaceCreateInfoMVK = {};
             macOSSurfaceCreateInfoMVK.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
@@ -14,11 +14,11 @@ namespace Micron
 
             if (macOsSurfaceKHRCreate.Failed())
             {
-                CoreLogger::Error("Failed to create Vulkan MacOS surface, message: {}", macOsSurfaceKHRCreate.ToString());
+                CoreLogger::Error("Failed to create Vulkan MacOS surface handle, message: {}", macOsSurfaceKHRCreate.ToString());
                 return;
             }
 
-            CoreLogger::Info("Vulkan MacOS surface created");
+            CoreLogger::Info("Vulkan MacOS surface handle created");
         }
     }
 }

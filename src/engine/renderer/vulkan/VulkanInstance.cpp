@@ -21,8 +21,7 @@ namespace Micron
 		Vector<VkLayerProperties> Instance::GetAvailableLayerProperties() const noexcept
 		{
 			UInt32 layerCount = this->GetAvailableLayerCount();
-
-			Vector<VkLayerProperties> availableLayerProperties = Vector<VkLayerProperties>(layerCount);
+			auto availableLayerProperties = Vector<VkLayerProperties>(layerCount);
 
 			Utility::Result layerPropertiesEnumerate = vkEnumerateInstanceLayerProperties(&layerCount, availableLayerProperties.data());
 
@@ -65,8 +64,7 @@ namespace Micron
 		Vector<VkExtensionProperties> Instance::GetAvailableExtensionProperties() const noexcept
 		{
 			UInt32 extensionCount = this->GetAvailableExtensionCount();
-
-			Vector<VkExtensionProperties> availableExtensionProperties = Vector<VkExtensionProperties>(extensionCount);
+			auto availableExtensionProperties = Vector<VkExtensionProperties>(extensionCount);
 				
 			Utility::Result extensionPropertiesEnumerate = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, availableExtensionProperties.data());
 			
@@ -94,7 +92,7 @@ namespace Micron
 			return extensionCount;
 		}
 
-		Void Instance::Create() noexcept
+		Void Instance::CreateHandle() noexcept
 		{
 			VkInstanceCreateInfo instanceCreateInfo = {};
 			instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -114,11 +112,11 @@ namespace Micron
 
 			if (instanceCreate.Failed())
 			{
-				CoreLogger::Critical("Failed to initialize Vulkan instance, message: {}", instanceCreate.ToString());
+				CoreLogger::Critical("Failed to create Vulkan instance handle, message: {}", instanceCreate.ToString());
 				_MICRON_SHUTDOWN();
 			}
 
-			CoreLogger::Info("Vulkan instance created");
+			CoreLogger::Info("Vulkan instance handle created");
 		}
 
 		VkApplicationInfo Instance::PickApplicationInfo() const noexcept
@@ -151,7 +149,7 @@ namespace Micron
 				Bool layerFound = std::ranges::find(std::as_const(availableLayerNames), layerName) != availableLayerNames.cend();
 
 				if (!layerFound)
-					CoreLogger::Error("Layer \"{}\" was not found", layerName);
+					CoreLogger::Error("Layer {} was not found", layerName);
 
 				return layerFound;
 			});
@@ -191,7 +189,7 @@ namespace Micron
 				Bool extensionFound = std::ranges::find(std::as_const(availableExtensionNames), extensionName) != availableExtensionNames.cend();
 
 				if (!extensionFound)
-					CoreLogger::Error("Extension \"{}\" was not found", extensionName);
+					CoreLogger::Error("Extension {} was not found", extensionName);
 
 				return extensionFound;
 			});
@@ -211,75 +209,24 @@ namespace Micron
 			return availableInstanceExtensionNames;
 		}
 		
-		Vector<Rc<PhysicalDevice>> Instance::GetPhysicalDevices() const noexcept
-		{
-			auto physicalDeviceHandles = this->GetPhysicalDeviceHandles();
-
-			Vector<Rc<PhysicalDevice>> physicalDevices;
-
-			physicalDevices.reserve(physicalDeviceHandles.size());
-
-			std::ranges::for_each(std::as_const(physicalDeviceHandles), [&](auto physicalDeviceHandle)
-			{
-				physicalDevices.emplace_back(new PhysicalDevice(physicalDeviceHandle));
-			});
-
-			return physicalDevices;
-		}
-
-		Vector<VkPhysicalDevice> Instance::GetPhysicalDeviceHandles() const noexcept
-		{
-			UInt32 physicalDeviceCount = this->GetPhysicalDeviceCount();
 			
-			if (physicalDeviceCount == 0)
-			{
-				CoreLogger::Critical("Failed to find physical devices with Vulkan support");
-				_MICRON_SHUTDOWN();
-			}
-
-			Vector<VkPhysicalDevice> physicalDeviceHandles = Vector<VkPhysicalDevice>(physicalDeviceCount);
-
-			Utility::Result physicalDeviceEnumerate = vkEnumeratePhysicalDevices(this->handle, &physicalDeviceCount, physicalDeviceHandles.data());
-
-			if (physicalDeviceEnumerate.Failed())
-			{
-				CoreLogger::Error("Failed to enumerate physical devices, message: {}", physicalDeviceEnumerate.ToString());
-				return Vector<VkPhysicalDevice>();
-			}
-
-			return physicalDeviceHandles;
-		}
-
-		UInt32 Instance::GetPhysicalDeviceCount() const noexcept
-		{
-			UInt32 physicalDeviceCount = 0;
-			
-			Utility::Result physicalDeviceCountRetrieve = vkEnumeratePhysicalDevices(this->handle, &physicalDeviceCount, nullptr);
-
-			if (physicalDeviceCountRetrieve.Failed())
-			{
-				CoreLogger::Error("Failed to retrieve physical device count, message: {}", physicalDeviceCountRetrieve.ToString());
-				return -1;
-			}
-
-			return physicalDeviceCount;
-		}
-		
-		Rc<Surface> Instance::CreateSurface() const noexcept
+		Void Instance::InitializeSurface() noexcept
 		{
 			switch (Engine::CurrentPlatform())
 			{
 			case Platform::Linux:
-				return this->CreateLinuxSurface();
+				surface = this->CreateLinuxSurface();
+				break;
 			case Platform::Windows:
-				return this->CreateWindowsSurface();
+				surface = this->CreateWindowsSurface();
+				break;
 			case Platform::MacOS:
-				return this->CreateMacOSSurface();
+				surface = this->CreateMacOSSurface();
+				break;
 			default:
-				return MakeRc<Surface>();
+				surface = MakeRc<Surface>();
+				break;
 			}
-
-			_MICRON_ASSERT(false);
 		}
 
 		Rc<LinuxSurface> Instance::CreateLinuxSurface() const noexcept
@@ -317,16 +264,65 @@ namespace Micron
 			return Application::GetInstance()->GetWindow()->GetInternalWindow()->GetPlatformWindow();
 		}
 
-		Void Instance::Destroy() noexcept
+		Void Instance::InitializePhysicalDevices() noexcept
+		{
+			auto physicalDeviceHandles = this->GetPhysicalDeviceHandles();
+
+			physicalDevices.reserve(physicalDeviceHandles.size());
+
+			std::ranges::for_each(std::as_const(physicalDeviceHandles), [&](auto physicalDeviceHandle)
+			{
+				physicalDevices.emplace_back(new PhysicalDevice(physicalDeviceHandle));
+			});
+		}
+
+		Vector<VkPhysicalDevice> Instance::GetPhysicalDeviceHandles() const noexcept
+		{
+			UInt32 physicalDeviceCount = this->GetPhysicalDeviceCount();
+			
+			if (physicalDeviceCount == 0)
+			{
+				CoreLogger::Critical("Failed to find physical devices with Vulkan support");
+				_MICRON_SHUTDOWN();
+			}
+
+			auto physicalDeviceHandles = Vector<VkPhysicalDevice>(physicalDeviceCount);
+
+			Utility::Result physicalDeviceEnumerate = vkEnumeratePhysicalDevices(this->handle, &physicalDeviceCount, physicalDeviceHandles.data());
+
+			if (physicalDeviceEnumerate.Failed())
+			{
+				CoreLogger::Error("Failed to enumerate physical devices, message: {}", physicalDeviceEnumerate.ToString());
+				return Vector<VkPhysicalDevice>();
+			}
+
+			return physicalDeviceHandles;
+		}
+
+		UInt32 Instance::GetPhysicalDeviceCount() const noexcept
+		{
+			UInt32 physicalDeviceCount = 0;
+			
+			Utility::Result physicalDeviceCountRetrieve = vkEnumeratePhysicalDevices(this->handle, &physicalDeviceCount, nullptr);
+
+			if (physicalDeviceCountRetrieve.Failed())
+			{
+				CoreLogger::Error("Failed to retrieve physical device count, message: {}", physicalDeviceCountRetrieve.ToString());
+				return -1;
+			}
+
+			return physicalDeviceCount;
+		}
+
+		Void Instance::DestroyHandle() noexcept
 		{
 			if (this->handle == nullptr)
 			{
-				CoreLogger::Error("Can not destroy Vulkan instance, because it is not created");
+				CoreLogger::Error("Can not destroy Vulkan instance handle, because it is not created");
 				return;
 			}
 
 			vkDestroyInstance(this->handle, nullptr);
 		}
-	
 	}
 }

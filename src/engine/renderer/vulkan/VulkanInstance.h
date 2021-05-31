@@ -26,18 +26,18 @@ namespace Micron
 			Void InitializeLayers() noexcept;
 			Void InitializeExtensions() noexcept;
 
-			Void Create() noexcept;
-			Void Destroy() noexcept;
+			Void CreateHandle() noexcept;
+			Void DestroyHandle() noexcept;
 
-			Rc<Surface> CreateSurface() const noexcept;
+			Void InitializeSurface() noexcept;
+			Void InitializePhysicalDevices() noexcept;
 
-			Vector<Rc<PhysicalDevice>> GetPhysicalDevices() const noexcept;
+			Rc<Surface> GetSurface() const noexcept { return surface; }
+
+			Vector<Rc<PhysicalDevice>> GetPhysicalDevices() const noexcept { return physicalDevices; }
 
 			inline Vector<Rc<Layer>> GetAvailableLayers() const noexcept { return availableLayers; }
 			inline Vector<Rc<Extension>> GetAvailableExtensions() const noexcept { return availableExtensions; }
-
-			inline Vector<NullTerminatedConstantString> GetEnabledLayerNames() const noexcept { return enabledLayerNames; }
-			inline Vector<NullTerminatedConstantString> GetEnabledExtensionNames() const noexcept { return enabledExtensionNames; }
 		private:
 			Vector<VkLayerProperties> GetAvailableLayerProperties() const noexcept;
 			UInt32 GetAvailableLayerCount() const noexcept;
@@ -67,6 +67,9 @@ namespace Micron
 		private:
 			Vector<Rc<Layer>> availableLayers;
 			Vector<Rc<Extension>> availableExtensions;
+
+			Vector<Rc<PhysicalDevice>> physicalDevices;
+			Rc<Surface> surface;
 
 			Vector<NullTerminatedConstantString> enabledLayerNames;
 			Vector<NullTerminatedConstantString> enabledExtensionNames;

@@ -23,7 +23,7 @@ namespace Micron
                 Surface(instanceHandle), windowHandle(windowHandle), moduleHandle(moduleHandle)
             {}
 
-            Void Create() noexcept override;
+            Void CreateHandle() noexcept override;
         private:
             HWND windowHandle;
             HINSTANCE moduleHandle;
@@ -43,7 +43,7 @@ namespace Micron
             inline WindowsSurface() noexcept = default;
             inline ~WindowsSurface() noexcept override = default;
 
-            Void Create() noexcept override { return; }
+            Void CreateHandle() noexcept override { return; }
         };
     }
 }

@@ -4,7 +4,7 @@ namespace Micron
 {
     namespace Vulkan
     {
-        Void WindowsSurface::Create() noexcept 
+        Void WindowsSurface::CreateHandle() noexcept 
         {
             VkWin32SurfaceCreateInfoKHR windowsSurfaceCreateInfoKHR = {};
             windowsSurfaceCreateInfoKHR.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -15,11 +15,11 @@ namespace Micron
 
             if (windowsSurfaceKHRCreate.Failed())
             {
-                CoreLogger::Error("Failed to create Vulkan Windows surface, message: {}", windowsSurfaceKHRCreate.ToString());
+                CoreLogger::Error("Failed to create Vulkan Windows surface handle, message: {}", windowsSurfaceKHRCreate.ToString());
                 return;
             }
 
-            CoreLogger::Info("Vulkan Windows surface created");
+            CoreLogger::Info("Vulkan Windows surface handle created");
         }
     }
 }

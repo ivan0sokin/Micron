@@ -1,5 +1,5 @@
-#ifndef _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_PHYSICAL_DEVICE_MEMORY_HPP
-#define _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_PHYSICAL_DEVICE_MEMORY_HPP
+#ifndef _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_PHYSICAL_DEVICE_MEMORY_PROPERTIES_HPP
+#define _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_PHYSICAL_DEVICE_MEMORY_PROPERTIES_HPP
 
 #include "utility/VulkanUtilities.h"
 #include "VulkanMemoryHeap.hpp"
@@ -8,13 +8,13 @@ namespace Micron
 {
 	namespace Vulkan
 	{
-		class PhysicalDeviceMemory
+		class PhysicalDeviceMemoryProperties
 		{
 		public:
-			inline PhysicalDeviceMemory() noexcept = default;
-			inline ~PhysicalDeviceMemory() noexcept = default;
+			inline PhysicalDeviceMemoryProperties() noexcept = default;
+			inline ~PhysicalDeviceMemoryProperties() noexcept = default;
 
-			constexpr PhysicalDeviceMemory(VkPhysicalDeviceMemoryProperties const &memoryProperties) noexcept
+			constexpr PhysicalDeviceMemoryProperties(VkPhysicalDeviceMemoryProperties const &memoryProperties) noexcept
 			{
 				heaps.reserve(memoryProperties.memoryHeapCount);
 				

@@ -18,8 +18,10 @@ namespace Micron
                 instanceHandle(instanceHandle)
             {}
 
-            virtual Void Create() noexcept { return; }
-            Void Destroy() noexcept;
+            virtual Void CreateHandle() noexcept { return; }
+            Void DestroyHandle() noexcept;
+
+            constexpr static MultibyteString GetExtensionName() noexcept { return VK_KHR_SWAPCHAIN_EXTENSION_NAME; }
         protected:
             VkSurfaceKHR handle = VK_NULL_HANDLE;
             VkInstance instanceHandle = VK_NULL_HANDLE;

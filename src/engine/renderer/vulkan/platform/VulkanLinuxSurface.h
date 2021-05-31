@@ -23,7 +23,7 @@ namespace Micron
                 Surface(instanceHandle), display(display), window(window)
             {}
 
-            Void Create() noexcept override;
+            Void CreateHandle() noexcept override;
         private:
             Dispplay *display;
             Window window;
@@ -43,7 +43,7 @@ namespace Micron
             inline LinuxSurface() noexcept = default;
             inline ~LinuxSurface() noexcept override = default;
 
-            Void Create() noexcept override { return; }
+            Void CreateHandle() noexcept override { return; }
         };
     }
 }

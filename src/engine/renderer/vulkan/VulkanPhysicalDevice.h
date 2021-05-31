@@ -1,8 +1,9 @@
 #ifndef _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_PHYSICAL_DEVICE_H
 #define _MICRON_ENGINE_RENDERER_VULKAN_VULKAN_PHYSICAL_DEVICE_H
 
-#include "VulkanPhysicalDeviceTypes.h"
-#include "VulkanPhysicalDeviceMemory.hpp"
+#include "VulkanPhysicalDeviceProperties.hpp"
+#include "VulkanExtension.hpp"
+#include "VulkanPhysicalDeviceMemoryProperties.hpp"
 #include "VulkanQueueFamily.h"
 #include "VulkanLogicalDevice.h"
 
@@ -18,36 +19,39 @@ namespace Micron
 			inline PhysicalDevice() noexcept = default;
 			inline ~PhysicalDevice() noexcept = default;
 
-			PhysicalDevice(VkPhysicalDevice physicalDeviceHandle) noexcept;
+			constexpr PhysicalDevice(VkPhysicalDevice physicalDeviceHandle) noexcept :
+				handle(physicalDeviceHandle)
+			{}
 
 			Void Initialize() noexcept;
-
-			Rc<LogicalDevice> CreateLogicalDevice() const noexcept;			
-
-			constexpr PhysicalDeviceType GetType() const noexcept { return type; }
-			constexpr MultibyteString GetName() const noexcept { return name; }
-			constexpr UInt32 GetVendorID() const noexcept { return vendorID; }
-			constexpr UInt32 GetDeviceID() const noexcept { return deviceID; }
-			constexpr Version DriverVersion() const noexcept { return driverVersion; }
-			constexpr Version VulkanVersion() const noexcept { return vulkanVersion; }
-		
-			constexpr Bool HasGraphicsQueueFamily() const noexcept { return std::ranges::any_of(std::as_const(queueFamilies), [](auto queueFamily) { return queueFamily->SupportOperation(QueueOperation::Graphics); }); }
-
-			inline Rc<PhysicalDeviceMemory> GetMemory() const noexcept { return memory; }
-			inline Vector<Rc<QueueFamily>> GetQueueFamilies() const noexcept { return queueFamilies; }
-		private:
 			Void InitializeMemory() noexcept;
 			Void InitializeQueueFamilies() noexcept;
+			Void InitializeExtensions() noexcept;		
+
+			constexpr Bool HasGraphicsQueueFamily() const noexcept { return std::ranges::any_of(std::as_const(queueFamilies), [](auto queueFamily) { return queueFamily->SupportOperation(QueueOperation::Graphics); }); }
+
+			Bool SupportExtensions(Set<MultibyteString> extensionNames) noexcept;
+
+			Rc<LogicalDevice> CreateLogicalDevice(UnorderedSet<UInt32> const &queueFamilyIndices) noexcept;	
+
+			inline Rc<PhysicalDeviceProperties> GetProperties() const noexcept { return properties; }
+			inline Rc<PhysicalDeviceMemoryProperties> GetMemoryProperties() const noexcept { return memoryProperties; }
+			inline Vector<Rc<QueueFamily>> GetQueueFamilies() const noexcept { return queueFamilies; }
+			inline Vector<Rc<Extension>> GetAvailableExtensions() const noexcept { return availableExtensions; }
+
+			inline Vector<Rc<LogicalDevice>> GetCreatedLogicalDevices() const noexcept { return createdLogicalDevices; }
+		private:
+            Vector<VkExtensionProperties> GetAvailableExtensionProperties() const noexcept;
+            UInt32 GetAvailableExtensionCount() const noexcept;
 		private:
 			VkPhysicalDevice handle = VK_NULL_HANDLE;
 		private:
-			PhysicalDeviceType type;
-			MultibyteString name;
-			UInt32 deviceID, vendorID;
-			Version driverVersion, vulkanVersion;
-		private:
-			Rc<PhysicalDeviceMemory> memory;
+			Rc<PhysicalDeviceProperties> properties;
+			Rc<PhysicalDeviceMemoryProperties> memoryProperties;
 			Vector<Rc<QueueFamily>> queueFamilies;
+			Vector<Rc<Extension>> availableExtensions;
+
+			Vector<Rc<LogicalDevice>> createdLogicalDevices;
 		};
 	}
 }

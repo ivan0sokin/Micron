@@ -4,36 +4,20 @@ namespace Micron
 {
 	namespace Vulkan
 	{
-		PhysicalDevice::PhysicalDevice(VkPhysicalDevice physicalDeviceHandle) noexcept :
-			handle(physicalDeviceHandle)
+		Void PhysicalDevice::Initialize() noexcept
 		{
 			VkPhysicalDeviceProperties physicalDeviceProperties = {};
 			vkGetPhysicalDeviceProperties(this->handle, &physicalDeviceProperties);
 
-			this->type = static_cast<PhysicalDeviceType>(physicalDeviceProperties.deviceType);
-
-			this->name = physicalDeviceProperties.deviceName;
-			TrimString(this->name);
-
-			this->deviceID = physicalDeviceProperties.deviceID;
-			this->vendorID = physicalDeviceProperties.vendorID;
-
-			this->driverVersion = Utility::ToMicronVersion(physicalDeviceProperties.driverVersion);
-			this->vulkanVersion = Utility::ToMicronVersion(physicalDeviceProperties.apiVersion);
-		}
-
-		Void PhysicalDevice::Initialize() noexcept
-		{
-			this->InitializeMemory();
-			this->InitializeQueueFamilies();
+			properties = MakeRc<PhysicalDeviceProperties>(physicalDeviceProperties);
 		}
 
 		Void PhysicalDevice::InitializeMemory() noexcept
 		{
-			VkPhysicalDeviceMemoryProperties memoryProperties = {};
-			vkGetPhysicalDeviceMemoryProperties(this->handle, &memoryProperties);
+			VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = {};
+			vkGetPhysicalDeviceMemoryProperties(this->handle, &physicalDeviceMemoryProperties);
 			
-			memory = MakeRc<PhysicalDeviceMemory>(memoryProperties);
+			memoryProperties = MakeRc<PhysicalDeviceMemoryProperties>(physicalDeviceMemoryProperties);
 		}
 
 		Void PhysicalDevice::InitializeQueueFamilies() noexcept
@@ -54,10 +38,68 @@ namespace Micron
 				++queueFamilyIndex;
 			});
 		}
-
-		Rc<LogicalDevice> PhysicalDevice::CreateLogicalDevice() const noexcept
+		
+		Void PhysicalDevice::InitializeExtensions() noexcept
 		{
-			return MakeRc<LogicalDevice>(this->handle);
+			auto availableExtensionProperties = this->GetAvailableExtensionProperties();
+
+            availableExtensions.reserve(availableExtensionProperties.size());
+
+            std::ranges::for_each(std::as_const(availableExtensionProperties), [&](auto const &extensionProperties)
+            {
+                availableExtensions.emplace_back(new Extension(extensionProperties));
+            });
+		}
+
+		Vector<VkExtensionProperties> PhysicalDevice::GetAvailableExtensionProperties() const noexcept
+		{
+			UInt32 extensionCount = this->GetAvailableExtensionCount();
+            auto availableExtensionProperties = Vector<VkExtensionProperties>(extensionCount);
+
+            Utility::Result availableExtensionPropertiesEnumerate = vkEnumerateDeviceExtensionProperties(this->handle, nullptr, &extensionCount, availableExtensionProperties.data());
+
+            if (availableExtensionPropertiesEnumerate.Failed())
+            {
+                CoreLogger::Error("Failed to enumerate Vulkan device extension properties, message: {}", availableExtensionPropertiesEnumerate.ToString());
+                return Vector<VkExtensionProperties>();
+            }
+
+            return availableExtensionProperties;
+		}
+		
+		UInt32 PhysicalDevice::GetAvailableExtensionCount() const noexcept
+		{
+			UInt32 extensionCount = 0;
+
+            Utility::Result extensionCountRetrieve = vkEnumerateDeviceExtensionProperties(this->handle, nullptr, &extensionCount, nullptr);
+
+            if (extensionCountRetrieve.Failed())
+            {
+                CoreLogger::Error("Failed to retrieve Vulkan device extension properties count, message: {}", extensionCountRetrieve.ToString());
+                return -1;
+            }
+
+            return extensionCount;
+		}
+
+		Rc<LogicalDevice> PhysicalDevice::CreateLogicalDevice(UnorderedSet<UInt32> const &queueFamilyIndices) noexcept
+		{
+			return createdLogicalDevices.emplace_back(new LogicalDevice(this->handle, queueFamilyIndices));
+		}
+		
+		Bool PhysicalDevice::SupportExtensions(Set<MultibyteString> extensionNames) noexcept
+		{
+			std::ranges::for_each(std::as_const(availableExtensions), [&](auto extension)
+			{
+				extensionNames.erase(extension->GetName().c_str());
+			});
+
+			Bool extensionsSupported = extensionNames.empty();
+
+			if (!extensionsSupported)
+				CoreLogger::Error("Extensions {} are not supported", fmt::join(extensionNames, ", "));
+
+			return extensionsSupported;
 		}
 	}
 }

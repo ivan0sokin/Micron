@@ -1,12 +1,10 @@
 #include "VulkanLogicalDevice.h"
 
-#include "VulkanInstance.h"
-
 namespace Micron
 {
     namespace Vulkan
     {
-        Void LogicalDevice::Create() noexcept
+        Void LogicalDevice::CreateHandle(Vector<NullTerminatedConstantString> const &enabledExtensionNames) noexcept
         {
             VkDeviceCreateInfo deviceCreateInfo = {};
             deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -15,8 +13,8 @@ namespace Micron
             deviceCreateInfo.queueCreateInfoCount = static_cast<UInt32>(queueCreateInfos.size());
             deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
 
-            deviceCreateInfo.enabledLayerCount = static_cast<UInt32>(enabledLayerNames.size());
-            deviceCreateInfo.ppEnabledLayerNames = enabledLayerNames.data();
+            deviceCreateInfo.enabledExtensionCount = static_cast<UInt32>(enabledExtensionNames.size());
+            deviceCreateInfo.ppEnabledExtensionNames = enabledExtensionNames.data();
 
             VkPhysicalDeviceFeatures enabledFeatures;
             vkGetPhysicalDeviceFeatures(this->physicalDeviceHandle, &enabledFeatures);
@@ -26,11 +24,11 @@ namespace Micron
 
             if (deviceCreate.Failed())
             {
-                CoreLogger::Error("Failed to create Vulkan logical device, message: {}", deviceCreate.ToString());
+                CoreLogger::Error("Failed to create Vulkan logical device handle, message: {}", deviceCreate.ToString());
                 return;
             }
 
-            CoreLogger::Info("Vulkan logical device created");
+            CoreLogger::Info("Vulkan logical device handle created");
         }
         
         Vector<VkDeviceQueueCreateInfo> LogicalDevice::PickQueueCreateInfos() const noexcept
@@ -66,11 +64,11 @@ namespace Micron
             });
         }
 
-        Void LogicalDevice::Destroy() noexcept
+        Void LogicalDevice::DestroyHandle() noexcept
         {
             if (this->handle == nullptr)
             {
-                CoreLogger::Error("Can not destroy Vulkan logical device, because it is not created");
+                CoreLogger::Error("Can not destroy Vulkan logical device handle, because it is not created");
                 return;
             }
             

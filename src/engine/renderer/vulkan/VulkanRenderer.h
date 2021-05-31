@@ -4,8 +4,6 @@
 #include "../APIRenderer.h"
 
 #include "VulkanInstance.h"
-#include "VulkanPhysicalDevice.h"
-#include "VulkanLogicalDevice.h"
 
 namespace Micron
 {
@@ -24,12 +22,11 @@ namespace Micron
 		Void DestroyInstance() noexcept;
 
 		Void InitializePhysicalDevices() noexcept;
+		Bool CheckNoneOfPhysicalDevicesHasGraphicsQueueFamily() const noexcept;
 
-		Void InitializeLogicalDevice() noexcept;
 		Void CreateLogicalDevice() noexcept;
-		UnorderedSet<UInt32> PickQueueFamilyIndices() const noexcept;
-		Void InitializeLogicalDeviceQueues() noexcept;
 		Void DestroyLogicalDevice() noexcept;
+		UnorderedSet<UInt32> PickQueueFamilyIndices() const noexcept;
 
 		Void CreateSurface() noexcept;
 		Void DestroySurface() noexcept;
@@ -37,8 +34,9 @@ namespace Micron
 		Box<Vulkan::Instance> instance;
 		Rc<Vulkan::Surface> surface;
 		Vector<Rc<Vulkan::PhysicalDevice>> physicalDevices;
-		USize pickedPhysicalDeviceIndex = 0;
 		Rc<Vulkan::LogicalDevice> logicalDevice;
+	private:
+		constexpr static USize pickedPhysicalDeviceIndex = 0;
 	};
 }
 

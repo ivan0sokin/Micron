@@ -8,10 +8,28 @@ namespace Micron
 	Void VulkanRenderer::Initialize() noexcept
 	{
 		this->InitializeInstance();
-		this->CreateSurface();
-		this->InitializePhysicalDevices();
-		this->InitializeLogicalDevice();
 
+		instance->InitializeSurface();
+		this->CreateSurface();
+		
+		instance->InitializePhysicalDevices();
+		this->InitializePhysicalDevices();
+
+		if (this->CheckNoneOfPhysicalDevicesHasGraphicsQueueFamily())
+		{
+			CoreLogger::Critical("None of Vulkan physical devices can render");
+			_MICRON_SHUTDOWN();
+		}
+
+		if (!physicalDevices[pickedPhysicalDeviceIndex]->SupportExtensions({ Vulkan::Surface::GetExtensionName() }))
+		{
+			CoreLogger::Critical("Vulkan physical device does not support surface extension");
+			_MICRON_SHUTDOWN();
+		}
+
+		this->CreateLogicalDevice();
+		logicalDevice->InitializeQueues();
+		
 		CoreLogger::Info("Vulkan renderer initialized");
 	}
 	
@@ -22,49 +40,62 @@ namespace Micron
 		instance->InitializeLayers();
 		instance->InitializeExtensions();
 		
-		instance->Create();
+		instance->CreateHandle();
 	}
 	
 	Void VulkanRenderer::DestroyInstance() noexcept
 	{
-		instance->Destroy();
+		instance->DestroyHandle();
 		instance.reset();
 	}
 	
+	Void VulkanRenderer::CreateSurface() noexcept
+	{
+		surface = instance->GetSurface();
+		surface->CreateHandle();
+	}
+	
+	Void VulkanRenderer::DestroySurface() noexcept
+	{
+		surface->DestroyHandle();
+		surface.reset();
+	}
+
 	Void VulkanRenderer::InitializePhysicalDevices() noexcept
 	{
 		physicalDevices = instance->GetPhysicalDevices();
 
-		std::ranges::for_each(physicalDevices, [&](auto &physicalDevice)
+		std::ranges::for_each(physicalDevices, [&](auto physicalDevice)
 		{
 			physicalDevice->Initialize();
+			physicalDevice->InitializeMemory();
+			physicalDevice->InitializeQueueFamilies();
+			physicalDevice->InitializeExtensions();
 		});
-
-		if (std::ranges::none_of(std::as_const(physicalDevices), [](auto physicalDevice) { return physicalDevice->HasGraphicsQueueFamily(); }))
-		{
-			CoreLogger::Critical("None of Vulkan physical devices can render");
-			_MICRON_SHUTDOWN();
-		}
 	}
 	
-	Void VulkanRenderer::InitializeLogicalDevice() noexcept
+	Bool VulkanRenderer::CheckNoneOfPhysicalDevicesHasGraphicsQueueFamily() const noexcept
 	{
-		this->CreateLogicalDevice();
-		this->InitializeLogicalDeviceQueues();
+		return std::ranges::none_of(std::as_const(physicalDevices), [](auto physicalDevice)
+		{
+			return physicalDevice->HasGraphicsQueueFamily();
+		});
 	}
 	
 	Void VulkanRenderer::CreateLogicalDevice() noexcept
 	{
-		logicalDevice = physicalDevices[pickedPhysicalDeviceIndex]->CreateLogicalDevice();
-
-		logicalDevice->SetEnabledLayerNames(instance->GetEnabledLayerNames());
-
 		auto queueFamilyIndices = this->PickQueueFamilyIndices();
-		logicalDevice->SetQueueFamilyIndices(queueFamilyIndices);
+		logicalDevice = physicalDevices[pickedPhysicalDeviceIndex]->CreateLogicalDevice(queueFamilyIndices);
 
-		logicalDevice->Create();
+		logicalDevice->CreateHandle({ Vulkan::Surface::GetExtensionName().c_str() });
 	}
 	
+	Void VulkanRenderer::DestroyLogicalDevice() noexcept
+	{
+		logicalDevice->DestroyHandle();
+		logicalDevice.reset();
+	}
+
 	UnorderedSet<UInt32> VulkanRenderer::PickQueueFamilyIndices() const noexcept
 	{
 		auto queueFamilies = physicalDevices[pickedPhysicalDeviceIndex]->GetQueueFamilies();
@@ -81,30 +112,7 @@ namespace Micron
 
 		return { graphicsQueueFamily->Index(), presentationQueueFamily->Index() };
 	}
-
-	Void VulkanRenderer::InitializeLogicalDeviceQueues() noexcept
-	{
-		logicalDevice->InitializeQueues();
-	}
 	
-	Void VulkanRenderer::DestroyLogicalDevice() noexcept
-	{
-		logicalDevice->Destroy();
-		logicalDevice.reset();
-	}
-	
-	Void VulkanRenderer::CreateSurface() noexcept
-	{
-		surface = instance->CreateSurface();
-		surface->Create();
-	}
-	
-	Void VulkanRenderer::DestroySurface() noexcept
-	{
-		surface->Destroy();
-		surface.reset();
-	}
-
 	Void VulkanRenderer::Destroy() noexcept
 	{
 		this->DestroyLogicalDevice();

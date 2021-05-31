@@ -4,7 +4,7 @@ namespace Micron
 {
     namespace Vulkan
     {
-        Void LinuxSurface::Create() noexcept 
+        Void LinuxSurface::CreateHandle() noexcept 
         {
             VkXlibSurfaceCreateInfoKHR linuxSurfaceCreateInfoKHR = {};
             linuxSurfaceCreateInfoKHR.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
@@ -15,11 +15,11 @@ namespace Micron
 
             if (linuxSurfaceKHRCreate.Failed())
             {
-                CoreLogger::Error("Failed to create Vulkan Linux surface, message: {}", linuxSurfaceKHRCreate.ToString());
+                CoreLogger::Error("Failed to create Vulkan Linux surface handle, message: {}", linuxSurfaceKHRCreate.ToString());
                 return;
             }
 
-            CoreLogger::Info("Vulkan Linux surface created");
+            CoreLogger::Info("Vulkan Linux surface handle created");
         }
     }
 }

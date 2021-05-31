@@ -23,7 +23,7 @@ namespace Micron
                 Surface(instanceHandle), pView(pView)
             {}
 
-            Void Create() noexcept override;
+            Void CreateHandle() noexcept override;
         private:
             void *pView;
         }
@@ -42,7 +42,7 @@ namespace Micron
             inline MacOSSurface() noexcept = default;
             inline ~MacOSSurface() noexcept override = default;
 
-            Void Create() noexcept override { return; }
+            Void CreateHandle() noexcept override { return; }
         };
     }
 }
